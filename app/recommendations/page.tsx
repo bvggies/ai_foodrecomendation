@@ -23,6 +23,7 @@ export default function RecommendationsPage() {
   })
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const dietTypes = [
     { value: '', label: 'None' },
@@ -57,6 +58,7 @@ export default function RecommendationsPage() {
   const getRecommendations = async () => {
     setIsLoading(true)
     setRecommendations([])
+    setError('')
 
     try {
       const response = await fetch('/api/recommendations', {
@@ -65,14 +67,19 @@ export default function RecommendationsPage() {
         body: JSON.stringify(preferences),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Failed to get recommendations')
+        // Extract detailed error message from API response
+        const errorMessage = data.details || data.error || 'Failed to get recommendations'
+        throw new Error(errorMessage)
       }
 
-      const data = await response.json()
       setRecommendations(data.recommendations || [])
-    } catch (error) {
-      console.error('Error:', error)
+    } catch (err: any) {
+      console.error('Error:', err)
+      const errorMessage = err.message || 'Failed to get recommendations. Please try again.'
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -174,6 +181,12 @@ export default function RecommendationsPage() {
             </>
           )}
         </button>
+
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+            <strong>Error:</strong> {error}
+          </div>
+        )}
       </div>
 
       {/* Recommendations */}
