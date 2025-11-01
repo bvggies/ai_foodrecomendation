@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getGhanaianFoods, findFoodByName, findFoodsByIngredients } from '@/lib/food-knowledge'
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
