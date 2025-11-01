@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { getGhanaianFoods, getFoodKnowledgeBase } from '@/lib/food-knowledge'
 import { callAIProvider, getAvailableProviders, type AIProvider } from '@/lib/ai-providers'
-import { getDb } from '@/lib/db'
 
 // Mark this route as dynamic
 export const dynamic = 'force-dynamic'
