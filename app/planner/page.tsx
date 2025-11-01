@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { Calendar, Clock, Plus, X } from 'lucide-react'
+import { Calendar, Clock, Plus, X, CheckCircle2, Circle, History } from 'lucide-react'
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns'
 
 interface Meal {
@@ -10,6 +10,7 @@ interface Meal {
   name: string
   type: 'breakfast' | 'lunch' | 'dinner' | 'snack'
   time?: string
+  completed?: boolean
 }
 
 interface DayMeals {
@@ -54,6 +55,7 @@ export default function PlannerPage() {
                 name: m.name,
                 type: m.type as Meal['type'],
                 time: m.time,
+                completed: m.completed || false,
               })
             })
 
@@ -118,54 +120,13 @@ export default function PlannerPage() {
     loadMeals()
   }, [session, selectedWeek])
 
-  // Save meals to API or localStorage whenever they change
-  useEffect(() => {
-    // Don't save if we're currently loading (prevents infinite loop)
-    if (isLoading) return
-
-    if (meals.length > 0) {
-      if (session?.user) {
-        // Save to API - convert Date objects to strings
-        const saveToAPI = async () => {
-          try {
-            const mealsToSave = meals.map(dayMeals => ({
-              date: format(dayMeals.date, 'yyyy-MM-dd'),
-              meals: dayMeals.meals.map(meal => ({
-                id: meal.id,
-                name: meal.name,
-                type: meal.type,
-                time: meal.time || null,
-              }))
-            }))
-
-            const response = await fetch('/api/meals', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ meals: mealsToSave }),
-            })
-
-            if (!response.ok) {
-              const error = await response.json()
-              console.error('Error saving meals:', error)
-            }
-          } catch (error) {
-            console.error('Error saving meals:', error)
-          }
-        }
-        saveToAPI()
-      } else {
-        // Save to localStorage - convert Date objects to ISO strings for storage
-        const mealsToSave = meals.map(dayMeals => ({
-          date: dayMeals.date.toISOString(),
-          meals: dayMeals.meals
-        }))
-        localStorage.setItem('mealPlanner', JSON.stringify(mealsToSave))
-      }
-    }
-  }, [meals, session, isLoading])
+  // Note: We now save meals individually when added/updated, not in bulk
+  // This prevents overwriting meals from other weeks
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [newMeal, setNewMeal] = useState({ name: '', type: 'lunch' as Meal['type'], time: '' })
+  const [showAllMeals, setShowAllMeals] = useState(false)
+  const [allMeals, setAllMeals] = useState<any[]>([])
 
   const mealTypes = [
     { value: 'breakfast', label: 'Breakfast', emoji: '🍳' },
@@ -180,9 +141,19 @@ export default function PlannerPage() {
     setNewMeal({ name: '', type: 'lunch', time: '' })
   }
 
-  const addMeal = () => {
+  const addMeal = async () => {
     if (!selectedDay || !newMeal.name.trim()) return
 
+    const mealId = `meal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    const newMealData = {
+      id: mealId,
+      name: newMeal.name,
+      type: newMeal.type,
+      time: newMeal.time || undefined,
+      completed: false,
+    }
+
+    // Optimistically update UI
     setMeals((prev) =>
       prev.map((dayMeals) => {
         if (isSameDay(dayMeals.date, selectedDay)) {
@@ -190,22 +161,55 @@ export default function PlannerPage() {
             ...dayMeals,
             meals: [
               ...dayMeals.meals,
-              {
-                id: Date.now().toString(),
-                name: newMeal.name,
-                type: newMeal.type,
-                time: newMeal.time || undefined,
-              },
+              newMealData,
             ],
           }
         }
         return dayMeals
       })
     )
+
     setShowAddModal(false)
+
+    // Save to API or localStorage
+    if (session?.user) {
+      try {
+        await fetch('/api/meals/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            meal: {
+              ...newMealData,
+              date: format(selectedDay, 'yyyy-MM-dd'),
+            },
+          }),
+        })
+      } catch (error) {
+        console.error('Error saving meal:', error)
+      }
+    } else {
+      // Save to localStorage
+      const mealsToSave = meals.map(dayMeals => {
+        if (isSameDay(dayMeals.date, selectedDay)) {
+          return {
+            date: dayMeals.date.toISOString(),
+            meals: [...dayMeals.meals, newMealData],
+          }
+        }
+        return {
+          date: dayMeals.date.toISOString(),
+          meals: dayMeals.meals,
+        }
+      })
+      localStorage.setItem('mealPlanner', JSON.stringify(mealsToSave))
+    }
+
+    // Reset form
+    setNewMeal({ name: '', type: 'lunch', time: '' })
   }
 
-  const removeMeal = (dayIndex: number, mealId: string) => {
+  const removeMeal = async (dayIndex: number, mealId: string) => {
+    // Optimistically remove from UI
     setMeals((prev) =>
       prev.map((dayMeals, index) => {
         if (index === dayIndex) {
@@ -217,7 +221,81 @@ export default function PlannerPage() {
         return dayMeals
       })
     )
+
+    // Delete from API or localStorage
+    if (session?.user) {
+      try {
+        await fetch(`/api/meals/update?mealId=${mealId}`, {
+          method: 'DELETE',
+        })
+      } catch (error) {
+        console.error('Error deleting meal:', error)
+      }
+    } else {
+      // Update localStorage
+      const updatedMeals = meals.map((dayMeals, index) => {
+        if (index === dayIndex) {
+          return {
+            ...dayMeals,
+            meals: dayMeals.meals.filter((m) => m.id !== mealId),
+          }
+        }
+        return dayMeals
+      })
+      const mealsToSave = updatedMeals.map(dayMeals => ({
+        date: dayMeals.date.toISOString(),
+        meals: dayMeals.meals,
+      }))
+      localStorage.setItem('mealPlanner', JSON.stringify(mealsToSave))
+    }
   }
+
+  const toggleMealCompleted = async (mealId: string, currentCompleted: boolean) => {
+    // Optimistically update UI
+    setMeals((prev) =>
+      prev.map((dayMeals) => ({
+        ...dayMeals,
+        meals: dayMeals.meals.map((m) =>
+          m.id === mealId ? { ...m, completed: !currentCompleted } : m
+        ),
+      }))
+    )
+
+    if (session?.user) {
+      try {
+        await fetch('/api/meals/update', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mealId,
+            updates: { completed: !currentCompleted },
+          }),
+        })
+      } catch (error) {
+        console.error('Error updating meal:', error)
+      }
+    }
+  }
+
+  const loadAllMeals = async () => {
+    if (!session?.user) return
+
+    try {
+      const response = await fetch('/api/meals/all?limit=200')
+      const data = await response.json()
+      if (data.meals) {
+        setAllMeals(data.meals)
+      }
+    } catch (error) {
+      console.error('Error loading all meals:', error)
+    }
+  }
+
+  useEffect(() => {
+    if (showAllMeals && session?.user) {
+      loadAllMeals()
+    }
+  }, [showAllMeals, session])
 
   const goToPrevWeek = () => {
     const newWeek = addDays(selectedWeek, -7)
@@ -239,12 +317,30 @@ export default function PlannerPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-4xl font-bold">Meal Planner</h1>
-          <button
-            onClick={goToToday}
-            className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
-          >
-            Today
-          </button>
+          <div className="flex gap-3">
+            {session?.user && (
+              <button
+                onClick={() => {
+                  setShowAllMeals(!showAllMeals)
+                  if (!showAllMeals) loadAllMeals()
+                }}
+                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                  showAllMeals
+                    ? 'bg-purple-500 text-white hover:bg-purple-600'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <History className="w-4 h-4" />
+                {showAllMeals ? 'Hide All Meals' : 'View All Meals'}
+              </button>
+            )}
+            <button
+              onClick={goToToday}
+              className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              Today
+            </button>
+          </div>
         </div>
 
         {/* Week Navigation */}
@@ -266,6 +362,65 @@ export default function PlannerPage() {
           </button>
         </div>
       </div>
+
+      {/* All Meals View */}
+      {showAllMeals && session?.user && (
+        <div className="bg-white rounded-xl shadow-md p-6 mb-6 border border-gray-200">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <History className="w-6 h-6 text-purple-500" />
+            All My Meals
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {allMeals.map((meal: any) => (
+              <div
+                key={meal.id}
+                className={`p-4 rounded-lg border-2 ${
+                  meal.completed
+                    ? 'bg-green-50 border-green-200'
+                    : 'bg-orange-50 border-orange-200'
+                }`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">
+                        {mealTypes.find(mt => mt.value === meal.type)?.emoji || '🍽️'}
+                      </span>
+                      <span className={`font-semibold ${meal.completed ? 'line-through text-gray-500' : ''}`}>
+                        {meal.name}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {format(new Date(meal.date), 'MMM d, yyyy')}
+                      {meal.time && ` • ${meal.time}`}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => toggleMealCompleted(meal.id, meal.completed || false)}
+                    className={`ml-2 p-1 rounded transition-colors ${
+                      meal.completed
+                        ? 'text-green-600 hover:text-green-700'
+                        : 'text-gray-400 hover:text-orange-500'
+                    }`}
+                    title={meal.completed ? 'Mark as incomplete' : 'Mark as completed'}
+                  >
+                    {meal.completed ? (
+                      <CheckCircle2 className="w-5 h-5" />
+                    ) : (
+                      <Circle className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))}
+            {allMeals.length === 0 && (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                No meals found. Start planning by adding meals to your calendar!
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-4">
@@ -300,25 +455,50 @@ export default function PlannerPage() {
             <div className="space-y-2">
               {dayMeals.meals.map((meal) => {
                 const mealType = mealTypes.find((mt) => mt.value === meal.type)
+                const isCompleted = meal.completed || false
                 return (
                   <div
                     key={meal.id}
-                    className="bg-orange-50 rounded-lg p-3 border border-orange-200"
+                    className={`rounded-lg p-3 border-2 ${
+                      isCompleted
+                        ? 'bg-green-50 border-green-200'
+                        : 'bg-orange-50 border-orange-200'
+                    }`}
                   >
                     <div className="flex items-start justify-between mb-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-1">
+                        <button
+                          onClick={() => toggleMealCompleted(meal.id, isCompleted)}
+                          className={`transition-colors ${
+                            isCompleted
+                              ? 'text-green-600 hover:text-green-700'
+                              : 'text-gray-400 hover:text-orange-500'
+                          }`}
+                          title={isCompleted ? 'Mark as incomplete' : 'Mark as completed'}
+                        >
+                          {isCompleted ? (
+                            <CheckCircle2 className="w-4 h-4" />
+                          ) : (
+                            <Circle className="w-4 h-4" />
+                          )}
+                        </button>
                         <span>{mealType?.emoji}</span>
-                        <span className="font-semibold text-sm">{meal.name}</span>
+                        <span className={`font-semibold text-sm flex-1 ${
+                          isCompleted ? 'line-through text-gray-500' : ''
+                        }`}>
+                          {meal.name}
+                        </span>
                       </div>
                       <button
                         onClick={() => removeMeal(dayIndex, meal.id)}
-                        className="text-red-500 hover:text-red-700"
+                        className="text-red-500 hover:text-red-700 ml-2"
+                        title="Delete meal"
                       >
                         <X className="w-4 h-4" />
                       </button>
                     </div>
                     {meal.time && (
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
+                      <div className="flex items-center gap-1 text-xs text-gray-600 mt-1">
                         <Clock className="w-3 h-3" />
                         {meal.time}
                       </div>

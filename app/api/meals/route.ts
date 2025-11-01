@@ -28,7 +28,14 @@ export async function GET(req: NextRequest) {
       'SELECT * FROM meals WHERE user_id = $1 AND date >= $2 AND date <= $3 ORDER BY date, time',
       [userId, startDate, endDate]
     )
-    return NextResponse.json({ meals: result.rows })
+    
+    // Convert date to string format for consistency
+    const meals = result.rows.map((row: any) => ({
+      ...row,
+      date: typeof row.date === 'string' ? row.date : row.date.toISOString().split('T')[0],
+    }))
+    
+    return NextResponse.json({ meals })
   } catch (error: any) {
     console.error('Error fetching meals:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })

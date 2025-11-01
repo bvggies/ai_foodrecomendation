@@ -120,9 +120,20 @@ export async function initDb() {
         name TEXT NOT NULL,
         type VARCHAR(20) NOT NULL,
         time VARCHAR(10),
+        completed BOOLEAN DEFAULT FALSE,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `)
+
+    // Add completed column if it doesn't exist
+    await db.query(`
+      DO $$ 
+      BEGIN
+        ALTER TABLE meals ADD COLUMN IF NOT EXISTS completed BOOLEAN DEFAULT FALSE;
+      EXCEPTION
+        WHEN duplicate_column THEN NULL;
+      END $$;
     `)
 
     // User preferences/important data table
