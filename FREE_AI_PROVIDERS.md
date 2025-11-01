@@ -16,7 +16,7 @@
 - **Best For**: Ultra-fast inference, excellent performance
 - **Setup**: Add `GROQ_API_KEY` to environment variables
 - **Models Available**: 
-  - `llama-3.1-70b-versatile` (default, recommended)
+  - `llama-3.3-70b-versatile` (default, recommended)
   - `llama-3.1-8b-instant` (faster)
   - `mixtral-8x7b-32768` (good for long context)
 

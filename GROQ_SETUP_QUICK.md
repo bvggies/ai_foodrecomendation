@@ -30,7 +30,7 @@
    **Variable 2 (Optional - has default):**
    ```
    Name: GROQ_MODEL
-   Value: llama-3.1-70b-versatile
+   Value: llama-3.3-70b-versatile
    Environments: Production, Preview, Development (select all)
    ```
 
@@ -42,7 +42,7 @@
 Add to your `.env.local` file:
 ```
 GROQ_API_KEY=your_groq_api_key_here
-GROQ_MODEL=llama-3.1-70b-versatile
+GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
 Then restart your dev server.

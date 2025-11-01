@@ -181,7 +181,7 @@ export async function callGroq(
     throw new Error('Groq API key not configured')
   }
 
-  const model = process.env.GROQ_MODEL || 'llama-3.1-70b-versatile'
+  const model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'
   
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
