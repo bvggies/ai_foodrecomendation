@@ -14,6 +14,7 @@ import {
   Trash2,
   Edit,
   Shield,
+  Plus,
   BarChart3,
   Loader2,
   X,
@@ -73,7 +74,11 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [isAddingUser, setIsAddingUser] = useState(false)
   const [editForm, setEditForm] = useState({ name: '', email: '', role: 'user', password: '' })
+  const [addForm, setAddForm] = useState({ name: '', email: '', role: 'user', password: '', confirmPassword: '' })
+  const [formError, setFormError] = useState('')
+  const [formLoading, setFormLoading] = useState(false)
   
   // Enhanced features
   const [searchQuery, setSearchQuery] = useState('')
@@ -141,18 +146,114 @@ export default function AdminDashboardPage() {
     }
   }
 
+  const handleAddUser = () => {
+    setIsAddingUser(true)
+    setAddForm({ name: '', email: '', role: 'user', password: '', confirmPassword: '' })
+    setFormError('')
+  }
+
   const handleEditUser = (user: User) => {
     setEditingUser(user)
+    setIsAddingUser(false)
     setEditForm({
       name: user.name,
       email: user.email,
       role: user.role,
       password: '',
     })
+    setFormError('')
+  }
+
+  const handleSaveNewUser = async () => {
+    setFormError('')
+    setFormLoading(true)
+
+    // Validation
+    if (!addForm.name.trim()) {
+      setFormError('Name is required')
+      setFormLoading(false)
+      return
+    }
+
+    if (!addForm.email.trim()) {
+      setFormError('Email is required')
+      setFormLoading(false)
+      return
+    }
+
+    if (!addForm.password) {
+      setFormError('Password is required')
+      setFormLoading(false)
+      return
+    }
+
+    if (addForm.password.length < 6) {
+      setFormError('Password must be at least 6 characters')
+      setFormLoading(false)
+      return
+    }
+
+    if (addForm.password !== addForm.confirmPassword) {
+      setFormError('Passwords do not match')
+      setFormLoading(false)
+      return
+    }
+
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: addForm.name.trim(),
+          email: addForm.email.trim(),
+          role: addForm.role,
+          password: addForm.password,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        await loadData()
+        setIsAddingUser(false)
+        setAddForm({ name: '', email: '', role: 'user', password: '', confirmPassword: '' })
+        setFormError('')
+        alert('User created successfully!')
+      } else {
+        setFormError(data.error || 'Failed to create user')
+      }
+    } catch (error: any) {
+      console.error('Error creating user:', error)
+      setFormError(error.message || 'Error creating user')
+    } finally {
+      setFormLoading(false)
+    }
   }
 
   const handleSaveUser = async () => {
     if (!editingUser) return
+
+    setFormError('')
+    setFormLoading(true)
+
+    // Validation
+    if (!editForm.name.trim()) {
+      setFormError('Name is required')
+      setFormLoading(false)
+      return
+    }
+
+    if (!editForm.email.trim()) {
+      setFormError('Email is required')
+      setFormLoading(false)
+      return
+    }
+
+    if (editForm.password && editForm.password.length < 6) {
+      setFormError('Password must be at least 6 characters')
+      setFormLoading(false)
+      return
+    }
 
     try {
       const response = await fetch('/api/admin/users', {
@@ -160,22 +261,29 @@ export default function AdminDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: editingUser.id,
-          ...editForm,
+          name: editForm.name.trim(),
+          email: editForm.email.trim(),
+          role: editForm.role,
           password: editForm.password || undefined,
         }),
       })
+
+      const data = await response.json()
 
       if (response.ok) {
         await loadData()
         setEditingUser(null)
         setEditForm({ name: '', email: '', role: 'user', password: '' })
+        setFormError('')
         alert('User updated successfully!')
       } else {
-        alert('Failed to update user')
+        setFormError(data.error || 'Failed to update user')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating user:', error)
-      alert('Error updating user')
+      setFormError(error.message || 'Error updating user')
+    } finally {
+      setFormLoading(false)
     }
   }
 

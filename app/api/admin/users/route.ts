@@ -50,6 +50,80 @@ export async function GET(req: NextRequest) {
   }
 }
 
+export async function POST(req: NextRequest) {
+  try {
+    await requireAdmin()
+
+    const { name, email, role, password } = await req.json()
+
+    // Validation
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { error: 'Name, email, and password are required' },
+        { status: 400 }
+      )
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: 'Password must be at least 6 characters' },
+        { status: 400 }
+      )
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      )
+    }
+
+    const db = await getDb()
+
+    // Check if email already exists
+    const existingUser = await db.query('SELECT id FROM users WHERE email = $1', [email])
+    if (existingUser.rows.length > 0) {
+      return NextResponse.json(
+        { error: 'Email already exists' },
+        { status: 400 }
+      )
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10)
+
+    // Create user
+    const result = await db.query(
+      `INSERT INTO users (name, email, password_hash, role, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+       RETURNING id, name, email, role, created_at`,
+      [name, email, passwordHash, role || 'user']
+    )
+
+    return NextResponse.json({
+      success: true,
+      user: result.rows[0],
+    })
+  } catch (error: any) {
+    console.error('Error creating user:', error)
+    
+    // Handle unique constraint violation
+    if (error.code === '23505') {
+      return NextResponse.json(
+        { error: 'Email already exists' },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json(
+      { error: error.message || 'Failed to create user' },
+      { status: error.message.includes('Unauthorized') ? 403 : 500 }
+    )
+  }
+}
+
 export async function PUT(req: NextRequest) {
   try {
     await requireAdmin()
