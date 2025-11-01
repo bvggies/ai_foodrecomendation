@@ -10,29 +10,32 @@ export async function GET() {
     
     const providerInfo = {
       openai: {
-        name: 'OpenAI (GPT-3.5/GPT-4)',
+        name: 'ChatGPT',
         available: providers.includes('openai'),
         free: false,
-        description: 'Powerful and widely available AI',
+        description: 'Classic AI companion',
       },
       gemini: {
-        name: 'Google Gemini',
+        name: 'Gemini Spark',
         available: providers.includes('gemini'),
         free: true,
-        description: 'Free tier available, fast responses',
+        description: 'Lightning fast & free',
       },
       claude: {
-        name: 'Anthropic Claude',
+        name: 'Claude Wisdom',
         available: providers.includes('claude'),
         free: false,
-        description: 'High-quality AI assistant',
+        description: 'Thoughtful & precise',
       },
     }
 
+    // Prefer Gemini as default if available, otherwise use first available
+    const defaultProvider = providers.includes('gemini') ? 'gemini' : (providers[0] || 'openai')
+    
     return NextResponse.json({
       providers: providerInfo,
       available: providers,
-      default: providers[0] || 'openai',
+      default: defaultProvider,
     })
   } catch (error: any) {
     return NextResponse.json(

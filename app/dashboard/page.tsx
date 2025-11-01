@@ -33,7 +33,7 @@ export default function DashboardPage() {
     allergies: [],
     health_goals: [],
     favorite_cuisines: [],
-    ai_provider: 'openai',
+    ai_provider: 'gemini',
     notes: '',
   })
   const [loading, setLoading] = useState(true)
@@ -233,13 +233,13 @@ export default function DashboardPage() {
               Preferred AI Assistant
             </label>
             <select
-              value={preferences.ai_provider || 'openai'}
+              value={preferences.ai_provider || 'gemini'}
               onChange={(e) => setPreferences({ ...preferences, ai_provider: e.target.value })}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
-              <option value="openai">OpenAI (GPT-3.5/GPT-4)</option>
-              <option value="gemini">Google Gemini (Free tier available)</option>
-              <option value="claude">Anthropic Claude</option>
+              <option value="gemini">Gemini Spark (Free tier available)</option>
+              <option value="openai">ChatGPT</option>
+              <option value="claude">Claude Wisdom</option>
             </select>
             <p className="text-xs text-gray-500 mt-1">
               Choose your preferred AI for chat and recipe generation. Some providers may require API keys to be configured.

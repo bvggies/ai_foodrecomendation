@@ -24,7 +24,7 @@ export async function GET() {
           allergies: [],
           health_goals: [],
           favorite_cuisines: [],
-          ai_provider: 'openai',
+          ai_provider: 'gemini',
           notes: '',
         },
       })
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
         preferences.allergies || [],
         preferences.health_goals || [],
         preferences.favorite_cuisines || [],
-        preferences.ai_provider || 'openai',
+        preferences.ai_provider || 'gemini',
         preferences.notes || '',
       ]
     )

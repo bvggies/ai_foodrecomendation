@@ -204,8 +204,9 @@ export function getAvailableProviders(): AIProvider[] {
     providers.push('claude')
   }
   
-  // Default to OpenAI if none configured
+  // Default to Gemini if none configured (since it's free), otherwise OpenAI
   if (providers.length === 0) {
+    providers.push('gemini')
     providers.push('openai')
   }
   

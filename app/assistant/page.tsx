@@ -27,7 +27,7 @@ export default function AssistantPage() {
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedProvider, setSelectedProvider] = useState<AIProvider>('openai')
+  const [selectedProvider, setSelectedProvider] = useState<AIProvider>('gemini')
   const [availableProviders, setAvailableProviders] = useState<Record<string, ProviderInfo>>({})
   const [showProviderSelector, setShowProviderSelector] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)

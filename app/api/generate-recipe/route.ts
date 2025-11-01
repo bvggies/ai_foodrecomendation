@@ -9,8 +9,8 @@ export async function POST(req: NextRequest) {
   try {
     const { ingredients, dietType, cuisine, provider: requestedProvider } = await req.json()
 
-    // Get user's preferred AI provider (if logged in)
-    let selectedProvider: AIProvider = 'openai'
+    // Get user's preferred AI provider (if logged in), default to Gemini
+    let selectedProvider: AIProvider = 'gemini'
     try {
       const session = await getServerSession(authOptions)
       if (session?.user?.id) {
