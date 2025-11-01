@@ -77,7 +77,6 @@ export default function Navigation() {
                 <span className="text-[10px] md:text-xs font-medium hidden lg:inline">Sign In</span>
               </Link>
             )}
-          </div>
         </div>
       </div>
     </nav>
