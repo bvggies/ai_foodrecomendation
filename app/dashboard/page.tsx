@@ -21,6 +21,7 @@ interface UserPreferences {
   allergies: string[]
   health_goals: string[]
   favorite_cuisines: string[]
+  ai_provider?: string
   notes: string
 }
 
