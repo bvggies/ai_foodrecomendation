@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { ShoppingCart, Plus, Check, X, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { ShoppingCart, Plus, Check, X, Trash2, Lock } from 'lucide-react'
 
 interface GroceryItem {
   id: string
@@ -26,7 +28,8 @@ const categories = [
 export default function GroceryPage() {
   const [items, setItems] = useState<GroceryItem[]>([])
 
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const router = useRouter()
 
   // Load items from API or localStorage on mount
   useEffect(() => {

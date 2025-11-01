@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { Calendar, Clock, Plus, X, CheckCircle2, Circle, History, TrendingUp } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Calendar, Clock, Plus, X, CheckCircle2, Circle, History, TrendingUp, Lock } from 'lucide-react'
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns'
+import Link from 'next/link'
 
 interface Meal {
   id: string
@@ -19,7 +21,8 @@ interface DayMeals {
 }
 
 export default function PlannerPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 })
   const [selectedWeek, setSelectedWeek] = useState(weekStart)
   const [meals, setMeals] = useState<DayMeals[]>(
