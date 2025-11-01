@@ -21,7 +21,7 @@ Environment: Production, Preview, Development (select all)
 
 ```
 Variable Name: GEMINI_MODEL
-Value: gemini-pro
+Value: gemini-1.5-flash
 Environment: Production, Preview, Development (select all)
 ```
 

@@ -75,7 +75,7 @@ export async function callGemini(
   const systemMessage = messages.find(msg => msg.role === 'system')
   const systemInstruction = systemMessage?.content
 
-  const model = process.env.GEMINI_MODEL || 'gemini-pro'
+  const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash'
   
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
   
