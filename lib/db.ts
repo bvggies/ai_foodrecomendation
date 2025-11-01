@@ -151,6 +151,43 @@ export async function initDb() {
       END $$;
     `)
 
+    // User logins table (track login IPs and sessions)
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS user_logins (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        ip_address VARCHAR(45),
+        user_agent TEXT,
+        login_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        success BOOLEAN DEFAULT TRUE
+      )
+    `)
+
+    // User activities table (track user actions)
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS user_activities (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        activity_type VARCHAR(50) NOT NULL,
+        activity_data JSONB,
+        ip_address VARCHAR(45),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // User inputs table (track search queries and chat inputs for analytics)
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS user_inputs (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        input_type VARCHAR(50) NOT NULL,
+        input_text TEXT,
+        context JSONB,
+        ip_address VARCHAR(45),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     // Create indexes
     await db.query(`
       CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id)
@@ -163,6 +200,24 @@ export async function initDb() {
     `)
     await db.query(`
       CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)
+    `)
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS idx_user_logins_user ON user_logins(user_id)
+    `)
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS idx_user_logins_ip ON user_logins(ip_address)
+    `)
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS idx_user_activities_user ON user_activities(user_id)
+    `)
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS idx_user_activities_type ON user_activities(activity_type)
+    `)
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS idx_user_inputs_user ON user_inputs(user_id)
+    `)
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS idx_user_inputs_type ON user_inputs(input_type)
     `)
 
     console.log('Database initialized successfully')

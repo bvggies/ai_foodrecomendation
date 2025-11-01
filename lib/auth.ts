@@ -12,7 +12,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
           return null
         }
@@ -25,11 +25,32 @@ export const authOptions: NextAuthOptions = {
           )
 
           if (result.rows.length === 0) {
+            // Track failed login attempt
+            try {
+              const ip = req?.headers?.['x-forwarded-for'] || req?.headers?.['x-real-ip'] || 'unknown'
+              await db.query(
+                'INSERT INTO user_logins (user_id, ip_address, user_agent, success) VALUES (NULL, $1, $2, FALSE)',
+                [String(ip).split(',')[0], req?.headers?.['user-agent'] || 'unknown']
+              )
+            } catch (e) {
+              // Ignore tracking errors
+            }
             return null
           }
 
           const user = result.rows[0]
           const isValid = await bcrypt.compare(credentials.password, user.password_hash)
+
+          // Track login attempt (success or failure)
+          try {
+            const ip = req?.headers?.['x-forwarded-for'] || req?.headers?.['x-real-ip'] || 'unknown'
+            await db.query(
+              'INSERT INTO user_logins (user_id, ip_address, user_agent, success) VALUES ($1, $2, $3, $4)',
+              [user.id, String(ip).split(',')[0], req?.headers?.['user-agent'] || 'unknown', isValid]
+            )
+          } catch (e) {
+            // Ignore tracking errors
+          }
 
           if (!isValid) {
             return null

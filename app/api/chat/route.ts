@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { getFoodKnowledgeBase } from '@/lib/food-knowledge'
 import { callAIProvider, getAvailableProviders, type AIProvider } from '@/lib/ai-providers'
+import { trackActivity, trackInput, getIpAddress } from '@/lib/track-activity'
 
 // Mark this route as dynamic
 export const dynamic = 'force-dynamic'
@@ -66,10 +69,33 @@ export async function POST(req: NextRequest) {
       { role: 'user' as const, content: message },
     ]
 
+    // Track user input for analytics
+    const session = await getServerSession(authOptions)
+    const ipAddress = getIpAddress(req)
+    
+    await trackInput({
+      userId: session?.user?.id,
+      inputType: 'chat',
+      inputText: message,
+      ipAddress,
+    })
+
     // Call the selected AI provider
     const aiResponse = await callAIProvider(provider, messages, {
       temperature: 0.7,
       maxTokens: 1000,
+    })
+
+    // Track chat activity
+    await trackActivity({
+      userId: session?.user?.id,
+      activityType: 'chat_message',
+      activityData: {
+        messageLength: message.length,
+        responseLength: aiResponse.content.length,
+        provider: aiResponse.provider,
+      },
+      ipAddress,
     })
 
     return NextResponse.json({

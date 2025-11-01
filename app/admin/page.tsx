@@ -66,7 +66,7 @@ interface Recipe {
 export default function AdminDashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'recipes' | 'analytics' | 'settings'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'recipes' | 'analytics' | 'settings' | 'activity' | 'logins' | 'inputs'>('overview')
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [users, setUsers] = useState<User[]>([])
   const [recipes, setRecipes] = useState<Recipe[]>([])
@@ -325,13 +325,16 @@ export default function AdminDashboardPage() {
 
         {/* Enhanced Tabs */}
         <div className="bg-white rounded-xl shadow-md p-2 mb-6 flex gap-2 border border-gray-200">
-          {[
-            { id: 'overview', label: 'Overview', icon: BarChart3 },
-            { id: 'users', label: 'Users', icon: Users, badge: stats?.totalUsers },
-            { id: 'recipes', label: 'Recipes', icon: Utensils, badge: stats?.totalRecipes },
-            { id: 'analytics', label: 'Analytics', icon: TrendingUp },
-            { id: 'settings', label: 'Settings', icon: Settings },
-          ].map((tab) => {
+        {[
+          { id: 'overview', label: 'Overview', icon: BarChart3 },
+          { id: 'users', label: 'Users', icon: Users, badge: stats?.totalUsers },
+          { id: 'recipes', label: 'Recipes', icon: Utensils, badge: stats?.totalRecipes },
+          { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+          { id: 'activity', label: 'Activity Logs', icon: Activity },
+          { id: 'logins', label: 'Login Logs', icon: Shield },
+          { id: 'inputs', label: 'User Inputs', icon: FileText },
+          { id: 'settings', label: 'Settings', icon: Settings },
+        ].map((tab) => {
             const Icon = tab.icon
             return (
               <button
@@ -1035,14 +1038,14 @@ function EnhancedAnalyticsView() {
   const [period, setPeriod] = useState('30')
 
   useEffect(() => {
-    fetch(`/api/admin/analytics?period=${period}`)
+    fetch(`/api/admin/analytics-enhanced?period=${period}`)
       .then((res) => res.json())
       .then((data) => {
         setAnalytics(data)
         setLoading(false)
       })
       .catch((err) => {
-        console.error('Error loading analytics:', err)
+        console.error('Error loading enhanced analytics:', err)
         setLoading(false)
       })
   }, [period])
@@ -1209,6 +1212,500 @@ function EnhancedAnalyticsView() {
               </div>
             )
           })}
+        </div>
+      </div>
+
+      {/* New Analytics Cards */}
+      {analytics.loginStats && (
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Shield className="w-5 h-5 text-blue-500" />
+              Login Statistics
+            </h4>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-2 bg-blue-50 rounded-lg">
+                <span className="text-sm text-gray-600">Total Logins</span>
+                <span className="font-bold">{parseInt(analytics.loginStats.total_logins || '0')}</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-green-50 rounded-lg">
+                <span className="text-sm text-gray-600">Successful</span>
+                <span className="font-bold text-green-600">{parseInt(analytics.loginStats.successful_logins || '0')}</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-red-50 rounded-lg">
+                <span className="text-sm text-gray-600">Failed</span>
+                <span className="font-bold text-red-600">{parseInt(analytics.loginStats.failed_logins || '0')}</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-purple-50 rounded-lg">
+                <span className="text-sm text-gray-600">Unique IPs</span>
+                <span className="font-bold">{parseInt(analytics.loginStats.unique_ips || '0')}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Activity className="w-5 h-5 text-purple-500" />
+              Activity Types
+            </h4>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {analytics.activityStats?.map((item: any, idx: number) => (
+                <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                  <span className="text-sm font-medium">{item.activity_type.replace(/_/g, ' ')}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-gray-500">{item.unique_users} users</span>
+                    <span className="font-bold">{parseInt(item.count)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-orange-500" />
+              Input Types
+            </h4>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {analytics.inputStats?.map((item: any, idx: number) => (
+                <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                  <span className="text-sm font-medium capitalize">{item.input_type}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-gray-500">{item.unique_users} users</span>
+                    <span className="font-bold">{parseInt(item.total_inputs)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              Failed Login Attempts
+            </h4>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {analytics.failedLogins && analytics.failedLogins.length > 0 ? (
+                analytics.failedLogins.map((item: any, idx: number) => (
+                  <div key={idx} className="flex justify-between items-center p-2 bg-red-50 rounded-lg">
+                    <span className="text-sm font-mono text-gray-700">{item.ip_address}</span>
+                    <span className="font-bold text-red-600">{parseInt(item.count)}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-gray-500 text-center py-4">No failed login attempts</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Top Inputs */}
+      {analytics.topInputs && analytics.topInputs.length > 0 && (
+        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-orange-500" />
+            Top User Inputs
+          </h3>
+          <div className="grid md:grid-cols-2 gap-3">
+            {analytics.topInputs.slice(0, 10).map((item: any, idx: number) => (
+              <div key={idx} className="p-3 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-lg border border-orange-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-800 truncate flex-1 mr-2">
+                    "{item.keyword}..."
+                  </span>
+                  <span className="text-sm font-bold text-orange-600">{item.count}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ActivityLogsView() {
+  const [activities, setActivities] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState<string>('all')
+
+  useEffect(() => {
+    fetch(`/api/admin/activity?limit=100${filter !== 'all' ? `&type=${filter}` : ''}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setActivities(data.activities || [])
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error('Error loading activities:', err)
+        setLoading(false)
+      })
+  }, [filter])
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin mx-auto text-purple-500" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+      <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h2 className="text-2xl font-bold">Activity Logs</h2>
+            <p className="text-gray-600 mt-1">Track all user activities in the system</p>
+          </div>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            <option value="all">All Activities</option>
+            <option value="chat_message">Chat Messages</option>
+            <option value="recipe_generated">Recipe Generated</option>
+            <option value="recipe_viewed">Recipe Viewed</option>
+            <option value="recipe_favorited">Recipe Favorited</option>
+            <option value="meal_planned">Meal Planned</option>
+            <option value="grocery_added">Grocery Added</option>
+            <option value="recommendation_requested">Recommendations</option>
+          </select>
+        </div>
+      </div>
+      
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Time</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">User</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Activity</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">IP Address</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Details</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
+            {activities.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                  No activities found
+                </td>
+              </tr>
+            ) : (
+              activities.map((activity) => (
+                <tr key={activity.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(activity.createdAt).toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="font-medium">{activity.userName || 'Anonymous'}</div>
+                    {activity.userEmail && (
+                      <div className="text-xs text-gray-500">{activity.userEmail}</div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold">
+                      {activity.activityType.replace(/_/g, ' ')}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
+                    {activity.ipAddress || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {activity.activityData ? (
+                      <details className="cursor-pointer">
+                        <summary className="text-purple-600 hover:text-purple-700">View Details</summary>
+                        <pre className="mt-2 p-2 bg-gray-50 rounded text-xs overflow-auto">
+                          {JSON.stringify(activity.activityData, null, 2)}
+                        </pre>
+                      </details>
+                    ) : (
+                      'N/A'
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function LoginLogsView() {
+  const [logins, setLogins] = useState<any[]>([])
+  const [ipStats, setIpStats] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/admin/logins?limit=100')
+      .then((res) => res.json())
+      .then((data) => {
+        setLogins(data.logins || [])
+        setIpStats(data.ipStats || [])
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error('Error loading logins:', err)
+        setLoading(false)
+      })
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin mx-auto text-purple-500" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* IP Statistics */}
+      <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Shield className="w-6 h-6 text-blue-500" />
+          IP Address Statistics
+        </h3>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {ipStats.slice(0, 15).map((stat, idx) => (
+            <div key={idx} className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono text-sm text-gray-800">{stat.ipAddress}</span>
+                <span className="font-bold text-blue-600">{stat.count}</span>
+              </div>
+              <div className="text-xs text-gray-500">
+                Last: {new Date(stat.lastLogin).toLocaleDateString()}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Login Logs Table */}
+      <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <h2 className="text-2xl font-bold">Login History</h2>
+          <p className="text-gray-600 mt-1">All login attempts and sessions</p>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Time</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">User</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">IP Address</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">User Agent</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {logins.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                    No login records found
+                  </td>
+                </tr>
+              ) : (
+                logins.map((login) => (
+                  <tr key={login.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(login.loginAt).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="font-medium">{login.userName || 'Failed Login'}</div>
+                      {login.userEmail && (
+                        <div className="text-xs text-gray-500">{login.userEmail}</div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
+                      {login.ipAddress || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        login.success 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-red-100 text-red-700'
+                      }`}>
+                        {login.success ? 'Success' : 'Failed'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={login.userAgent}>
+                      {login.userAgent || 'N/A'}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function UserInputsView() {
+  const [inputs, setInputs] = useState<any[]>([])
+  const [topQueries, setTopQueries] = useState<any[]>([])
+  const [typeDistribution, setTypeDistribution] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState<string>('all')
+
+  useEffect(() => {
+    fetch(`/api/admin/inputs?limit=100${filter !== 'all' ? `&type=${filter}` : ''}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setInputs(data.inputs || [])
+        setTopQueries(data.topQueries || [])
+        setTypeDistribution(data.typeDistribution || [])
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error('Error loading inputs:', err)
+        setLoading(false)
+      })
+  }, [filter])
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin mx-auto text-purple-500" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Statistics Cards */}
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+          <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-orange-500" />
+            Input Types
+          </h4>
+          <div className="space-y-2">
+            {typeDistribution.map((item, idx) => (
+              <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                <span className="text-sm font-medium capitalize">{item.type}</span>
+                <span className="font-bold">{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+          <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-green-500" />
+            Top Queries
+          </h4>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {topQueries.slice(0, 10).map((item, idx) => (
+              <div key={idx} className="p-2 bg-gray-50 rounded-lg">
+                <div className="text-sm text-gray-800 mb-1 truncate">"{item.text}"</div>
+                <div className="text-xs text-gray-500">Used {item.count} times</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+          <h4 className="text-lg font-semibold mb-4">Quick Stats</h4>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center p-2 bg-blue-50 rounded-lg">
+              <span className="text-sm text-gray-600">Total Inputs</span>
+              <span className="font-bold">{inputs.length}</span>
+            </div>
+            <div className="flex justify-between items-center p-2 bg-purple-50 rounded-lg">
+              <span className="text-sm text-gray-600">Unique Users</span>
+              <span className="font-bold">
+                {new Set(inputs.map(i => i.userId).filter(Boolean)).size}
+              </span>
+            </div>
+            <div className="flex justify-between items-center p-2 bg-green-50 rounded-lg">
+              <span className="text-sm text-gray-600">Top Query</span>
+              <span className="font-bold text-xs truncate ml-2">
+                {topQueries[0]?.text?.substring(0, 30) || 'N/A'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Inputs Table */}
+      <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-yellow-50">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h2 className="text-2xl font-bold">User Inputs</h2>
+              <p className="text-gray-600 mt-1">Track user search queries and chat inputs</p>
+            </div>
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="all">All Types</option>
+              <option value="chat">Chat</option>
+              <option value="recipe_search">Recipe Search</option>
+              <option value="recommendation">Recommendations</option>
+              <option value="grocery_search">Grocery Search</option>
+            </select>
+          </div>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Time</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">User</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Type</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Input</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">IP Address</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {inputs.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                    No inputs found
+                  </td>
+                </tr>
+              ) : (
+                inputs.map((input) => (
+                  <tr key={input.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(input.createdAt).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="font-medium">{input.userName || 'Anonymous'}</div>
+                      {input.userEmail && (
+                        <div className="text-xs text-gray-500">{input.userEmail}</div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-semibold capitalize">
+                        {input.inputType.replace(/_/g, ' ')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 max-w-md">
+                      <div className="truncate" title={input.inputText}>
+                        {input.inputText || 'N/A'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
+                      {input.ipAddress || 'N/A'}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

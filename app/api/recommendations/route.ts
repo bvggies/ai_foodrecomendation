@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { getGhanaianFoods, getFoodKnowledgeBase } from '@/lib/food-knowledge'
 import { callAIProvider, getAvailableProviders, type AIProvider } from '@/lib/ai-providers'
+import { trackActivity, getIpAddress } from '@/lib/track-activity'
 
 // Mark this route as dynamic
 export const dynamic = 'force-dynamic'
@@ -115,7 +118,24 @@ Make sure the recipes are diverse, practical, and match the preferences. Respond
       )
     }
 
-    return NextResponse.json({ recommendations })
+        // Track recommendation activity
+        const session = await getServerSession(authOptions)
+        const ipAddress = getIpAddress(req)
+        
+        await trackActivity({
+          userId: session?.user?.id,
+          activityType: 'recommendation_requested',
+          activityData: {
+            dietType: dietType || null,
+            healthGoal: healthGoal || null,
+            cuisine: cuisine || null,
+            maxCalories: maxCalories || null,
+            recommendationCount: recommendations.length,
+          },
+          ipAddress,
+        })
+
+        return NextResponse.json({ recommendations })
   } catch (error: any) {
     console.error('Recommendations API error:', error)
     

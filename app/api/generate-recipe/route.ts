@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { findFoodByName, findFoodsByIngredients, getFoodKnowledgeBase } from '@/lib/food-knowledge'
 import { callAIProvider, getAvailableProviders, type AIProvider } from '@/lib/ai-providers'
+import { trackActivity, getIpAddress } from '@/lib/track-activity'
 
 // Mark this route as dynamic
 export const dynamic = 'force-dynamic'
@@ -143,7 +146,23 @@ Make sure the recipe is creative, practical, and includes all necessary ingredie
       )
     }
 
-    return NextResponse.json({ recipe })
+        // Track recipe generation activity
+        const session = await getServerSession(authOptions)
+        const ipAddress = getIpAddress(req)
+        
+        await trackActivity({
+          userId: session?.user?.id,
+          activityType: 'recipe_generated',
+          activityData: {
+            recipeName: recipe.name,
+            cuisine: cuisine || null,
+            dietType: dietType || null,
+            hasIngredients: ingredients && ingredients.length > 0,
+          },
+          ipAddress,
+        })
+
+        return NextResponse.json({ recipe })
   } catch (error: any) {
     console.error('Recipe generation error:', error)
     
