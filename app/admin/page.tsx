@@ -39,6 +39,7 @@ interface Recipe {
   id: string
   name: string
   cuisine: string
+  diet_type?: string
   created_at: string
 }
 
