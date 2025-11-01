@@ -5,6 +5,9 @@ import { requireAdmin } from '@/lib/admin'
 import { getDb } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
   try {
     await requireAdmin()

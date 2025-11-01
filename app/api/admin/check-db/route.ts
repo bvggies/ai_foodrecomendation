@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic'
+
 /**
  * Check database connection and user count
  * Useful for debugging deployment issues

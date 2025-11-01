@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic'
+
 /**
  * Test endpoint to check if a specific user exists and verify password
  * Useful for debugging login issues

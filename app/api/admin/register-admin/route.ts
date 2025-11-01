@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic'
+
 /**
  * Register a new admin user (requires valid token)
  */
