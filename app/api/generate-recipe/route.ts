@@ -72,8 +72,11 @@ export async function POST(req: NextRequest) {
 
 Make sure the recipe is creative, practical, and includes all necessary ingredients and detailed step-by-step instructions.`
 
+    // Use configured model or fallback to gpt-3.5-turbo
+    const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
+    
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: model,
       messages: [
         {
           role: 'system',

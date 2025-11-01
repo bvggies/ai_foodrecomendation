@@ -66,8 +66,11 @@ Make sure the recipes are diverse, practical, and match the preferences. Respond
   ...
 ]`
 
+    // Use configured model or fallback to gpt-3.5-turbo
+    const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
+    
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: model,
       messages: [
         {
           role: 'system',

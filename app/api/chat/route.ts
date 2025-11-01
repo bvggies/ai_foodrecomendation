@@ -71,8 +71,11 @@ export async function POST(req: NextRequest) {
       { role: 'user' as const, content: message },
     ]
 
+    // Use configured model or fallback to gpt-3.5-turbo (more widely available)
+    const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
+    
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: model,
       messages: messages,
       temperature: 0.7,
       max_tokens: 1000,
