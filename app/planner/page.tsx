@@ -73,45 +73,14 @@ export default function PlannerPage() {
             setMeals(weekMeals)
           }
         } else {
-          // Load from localStorage
-          const savedMeals = localStorage.getItem('mealPlanner')
-          if (savedMeals) {
-            try {
-              const parsed = JSON.parse(savedMeals)
-              // Convert date strings back to Date objects
-              const mealsWithDates = parsed.map((day: any) => ({
-                ...day,
-                date: new Date(day.date),
-              }))
-              
-              // Filter meals for the current week
-              const weekMeals = Array.from({ length: 7 }, (_, i) => {
-                const dayDate = addDays(selectedWeek, i)
-                const savedDay = mealsWithDates.find((m: DayMeals) =>
-                  isSameDay(new Date(m.date), dayDate)
-                )
-                return savedDay || { date: dayDate, meals: [] }
-              })
-              setMeals(weekMeals)
-            } catch (e) {
-              console.error('Error loading meal planner:', e)
-              // Initialize empty week if error
-              setMeals(
-                Array.from({ length: 7 }, (_, i) => ({
-                  date: addDays(selectedWeek, i),
-                  meals: [],
-                }))
-              )
-            }
-          } else {
-            // Initialize empty week if no saved meals
-            setMeals(
-              Array.from({ length: 7 }, (_, i) => ({
-                date: addDays(selectedWeek, i),
-                meals: [],
-              }))
-            )
-          }
+          // Not authenticated - initialize empty week
+          // Don't load from localStorage for unauthenticated users
+          setMeals(
+            Array.from({ length: 7 }, (_, i) => ({
+              date: addDays(selectedWeek, i),
+              meals: [],
+            }))
+          )
         }
       } catch (error) {
         console.error('Error loading meals:', error)
