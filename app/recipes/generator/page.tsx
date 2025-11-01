@@ -77,11 +77,13 @@ export default function RecipeGeneratorPage() {
         }),
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to generate recipe')
-      }
-
       const data = await response.json()
+
+      if (!response.ok) {
+        // Extract detailed error message from API response
+        const errorMessage = data.details || data.error || 'Failed to generate recipe'
+        throw new Error(errorMessage)
+      }
       // Add ID and save to localStorage
       const recipeWithId = {
         ...data.recipe,

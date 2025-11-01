@@ -129,18 +129,46 @@ Make sure the recipe is creative, practical, and includes all necessary ingredie
       }
     } catch (parseError) {
       console.error('Failed to parse recipe JSON:', parseError)
+      console.error('Raw AI response:', response)
       return NextResponse.json(
-        { error: 'Failed to parse recipe response' },
+        { 
+          error: 'Failed to parse recipe response',
+          details: `The AI returned invalid JSON. Please try again or select a different AI provider.`,
+          rawResponse: response.substring(0, 500), // Include first 500 chars for debugging
+        },
         { status: 500 }
       )
     }
 
     return NextResponse.json({ recipe })
   } catch (error: any) {
-    console.error('OpenAI API error:', error)
+    console.error('Recipe generation error:', error)
+    
+    // Provide more specific error messages
+    let errorMessage = 'Failed to generate recipe'
+    let errorDetails = error.message || 'Unknown error'
+
+    if (error.message?.includes('API key') || error.message?.includes('not configured')) {
+      errorMessage = `AI provider not configured`
+      errorDetails = error.message
+    } else if (error.message?.includes('rate limit') || error.status === 429) {
+      errorMessage = 'Rate limit exceeded'
+      errorDetails = 'You have exceeded the API rate limit. Please try again later or switch to a different AI provider.'
+    } else if (error.status === 401) {
+      errorMessage = 'Authentication failed'
+      errorDetails = 'The AI provider API key is invalid or expired. Please check your environment variables.'
+    } else if (error.message?.includes('not available')) {
+      errorMessage = error.message
+      errorDetails = error.details || 'Please configure the required API keys in your environment variables.'
+    }
+
     return NextResponse.json(
-      { error: error.message || 'Failed to generate recipe' },
-      { status: 500 }
+      { 
+        error: errorMessage,
+        details: errorDetails,
+        provider: error.provider || 'unknown',
+      },
+      { status: error.status || 500 }
     )
   }
 }
