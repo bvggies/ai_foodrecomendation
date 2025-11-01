@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { getFoodKnowledgeBase } from '@/lib/food-knowledge'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
-})
+// Initialize OpenAI client (will be recreated with valid key in route handler)
+let openai: OpenAI | null = null
 
 function getSystemPrompt() {
   const foodKnowledge = getFoodKnowledgeBase()
@@ -41,12 +40,27 @@ export async function POST(req: NextRequest) {
   try {
     const { message, history } = await req.json()
 
-    if (!process.env.OPENAI_API_KEY) {
+    // Check if API key exists and is not empty
+    const apiKey = process.env.OPENAI_API_KEY
+    if (!apiKey || apiKey.trim() === '' || apiKey === 'your_openai_api_key_here') {
+      console.error('OpenAI API Key Check:', {
+        exists: !!apiKey,
+        length: apiKey?.length || 0,
+        startsWith: apiKey?.substring(0, 7) || 'none',
+      })
       return NextResponse.json(
-        { error: 'OpenAI API key not configured' },
+        { 
+          error: 'OpenAI API key not configured',
+          details: 'Please set OPENAI_API_KEY in your environment variables. Make sure to redeploy after adding it.',
+        },
         { status: 500 }
       )
     }
+
+    // Initialize OpenAI client with validated API key
+    openai = new OpenAI({
+      apiKey: apiKey,
+    })
 
     const messages = [
       { role: 'system' as const, content: getSystemPrompt() },
@@ -69,9 +83,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ response })
   } catch (error: any) {
     console.error('OpenAI API error:', error)
+    
+    // Provide more specific error messages
+    let errorMessage = 'Failed to generate response'
+    let errorDetails = error.message || 'Unknown error'
+
+    if (error.message?.includes('API key')) {
+      errorMessage = 'Invalid OpenAI API key'
+      errorDetails = 'Please check that your OPENAI_API_KEY is correct and starts with "sk-". Make sure to redeploy after updating it.'
+    } else if (error.message?.includes('rate limit') || error.status === 429) {
+      errorMessage = 'Rate limit exceeded'
+      errorDetails = 'You have exceeded your OpenAI API rate limit. Please try again later.'
+    } else if (error.status === 401) {
+      errorMessage = 'Authentication failed'
+      errorDetails = 'Your OpenAI API key is invalid or expired. Please check your API key in the environment variables.'
+    }
+
     return NextResponse.json(
-      { error: error.message || 'Failed to generate response' },
-      { status: 500 }
+      { 
+        error: errorMessage,
+        details: errorDetails,
+        status: error.status || 500,
+      },
+      { status: error.status || 500 }
     )
   }
 }

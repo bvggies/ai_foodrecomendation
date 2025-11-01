@@ -43,19 +43,30 @@ export default function AssistantPage() {
         body: JSON.stringify({ message: input, history: messages }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Failed to get response')
+        // Handle API error response
+        const errorMsg = data.details || data.error || 'An error occurred'
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: `❌ Error: ${errorMsg}`,
+          },
+        ])
+        return
       }
 
-      const data = await response.json()
       setMessages((prev) => [...prev, { role: 'assistant', content: data.response }])
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error)
+      const errorMessage = error.message || 'Failed to connect to the server. Please check your connection and try again.'
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          content: 'Sorry, I encountered an error. Please make sure your OpenAI API key is set in the environment variables.',
+          content: `❌ Error: ${errorMessage}`,
         },
       ])
     } finally {
