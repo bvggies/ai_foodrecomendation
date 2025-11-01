@@ -225,29 +225,11 @@ export default function PlannerPage() {
 
     // Delete from API
     try {
-      try {
-        await fetch(`/api/meals/update?mealId=${mealId}`, {
-          method: 'DELETE',
-        })
-      } catch (error) {
-        console.error('Error deleting meal:', error)
-      }
-    } else {
-      // Update localStorage
-      const updatedMeals = meals.map((dayMeals, index) => {
-        if (index === dayIndex) {
-          return {
-            ...dayMeals,
-            meals: dayMeals.meals.filter((m) => m.id !== mealId),
-          }
-        }
-        return dayMeals
+      await fetch(`/api/meals/update?mealId=${mealId}`, {
+        method: 'DELETE',
       })
-      const mealsToSave = updatedMeals.map(dayMeals => ({
-        date: dayMeals.date.toISOString(),
-        meals: dayMeals.meals,
-      }))
-      localStorage.setItem('mealPlanner', JSON.stringify(mealsToSave))
+    } catch (error) {
+      console.error('Error deleting meal:', error)
     }
   }
 
