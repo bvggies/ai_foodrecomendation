@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
         preferences.allergies || [],
         preferences.health_goals || [],
         preferences.favorite_cuisines || [],
-        preferences.ai_provider || 'gemini',
+        preferences.ai_provider || 'groq',
         preferences.notes || '',
       ]
     )

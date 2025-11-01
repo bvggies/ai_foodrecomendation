@@ -134,7 +134,7 @@ export async function initDb() {
         allergies TEXT[],
         health_goals TEXT[],
         favorite_cuisines TEXT[],
-        ai_provider VARCHAR(20) DEFAULT 'gemini',
+              ai_provider VARCHAR(20) DEFAULT 'groq',
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -145,7 +145,7 @@ export async function initDb() {
     await db.query(`
       DO $$ 
       BEGIN
-        ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS ai_provider VARCHAR(20) DEFAULT 'gemini';
+        ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS ai_provider VARCHAR(20) DEFAULT 'groq';
       EXCEPTION
         WHEN duplicate_column THEN NULL;
       END $$;

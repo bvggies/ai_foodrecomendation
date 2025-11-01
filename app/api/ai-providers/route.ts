@@ -35,8 +35,8 @@ export async function GET() {
       },
     }
 
-    // Prefer Gemini as default if available, otherwise use first available
-    const defaultProvider = providers.includes('gemini') ? 'gemini' : (providers[0] || 'openai')
+    // Prefer Groq as default if available, otherwise use first available
+    const defaultProvider = providers.includes('groq') ? 'groq' : (providers[0] || 'openai')
     
     return NextResponse.json({
       providers: providerInfo,
