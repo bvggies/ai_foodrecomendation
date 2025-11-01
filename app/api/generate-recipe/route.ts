@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
-    const { ingredients, dietType, cuisine } = await req.json()
+    const { ingredients, dietType, cuisine, recipeName, recipeDescription, targetCalories, targetPrepTime, targetCookTime } = await req.json()
 
     // Always use Groq
     const provider: AIProvider = 'groq'
@@ -24,20 +24,42 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!ingredients || ingredients.length === 0) {
+    // Check if ingredients match any Ghanaian foods
+    const matchingGhanaianFoods = ingredients && ingredients.length > 0 ? findFoodsByIngredients(ingredients) : []
+    const foodKnowledge = getFoodKnowledgeBase()
+    
+    let prompt = ''
+    
+    // If recipe name is provided (from recommendations), generate based on that
+    if (recipeName) {
+      prompt = `Generate a detailed recipe for: "${recipeName}".`
+      if (recipeDescription) {
+        prompt += ` Description: ${recipeDescription}.`
+      }
+      if (targetCalories) {
+        prompt += ` Target calories per serving: ${targetCalories}.`
+      }
+      if (targetPrepTime) {
+        prompt += ` Target prep time: ${targetPrepTime} minutes.`
+      }
+      if (targetCookTime) {
+        prompt += ` Target cook time: ${targetCookTime} minutes.`
+      }
+      if (ingredients && ingredients.length > 0) {
+        prompt += ` Use these ingredients: ${ingredients.join(', ')}.`
+      } else {
+        prompt += ` Include all necessary ingredients for this recipe.`
+      }
+    } else if (ingredients && ingredients.length > 0) {
+      // Generate from ingredients (original behavior)
+      const ingredientsList = ingredients.join(', ')
+      prompt = `Generate a detailed recipe using the following ingredients: ${ingredientsList}.`
+    } else {
       return NextResponse.json(
-        { error: 'Ingredients are required' },
+        { error: 'Either ingredients or recipe name is required' },
         { status: 400 }
       )
     }
-
-    const ingredientsList = ingredients.join(', ')
-    
-    // Check if ingredients match any Ghanaian foods
-    const matchingGhanaianFoods = findFoodsByIngredients(ingredients)
-    const foodKnowledge = getFoodKnowledgeBase()
-    
-    let prompt = `Generate a detailed recipe using the following ingredients: ${ingredientsList}.`
 
     // If cuisine is Ghanaian or ingredients match Ghanaian foods, include knowledge
     if (cuisine === 'Ghanaian' || cuisine?.toLowerCase().includes('ghana') || matchingGhanaianFoods.length > 0) {

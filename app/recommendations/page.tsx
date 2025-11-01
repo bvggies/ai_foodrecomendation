@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { ChefHat, Heart, Clock, Flame, Loader2 } from 'lucide-react'
 
 interface Recommendation {
@@ -15,6 +16,7 @@ interface Recommendation {
 }
 
 export default function RecommendationsPage() {
+  const router = useRouter()
   const [preferences, setPreferences] = useState({
     dietType: '',
     healthGoal: '',
@@ -24,6 +26,7 @@ export default function RecommendationsPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [generatingRecipe, setGeneratingRecipe] = useState<string | null>(null)
 
   const dietTypes = [
     { value: '', label: 'None' },
@@ -223,31 +226,84 @@ export default function RecommendationsPage() {
                   </span>
                 )}
               <button
-                onClick={() => {
-                  // Save recipe and navigate to detail page
-                  const recipeWithId = {
-                    ...recipe,
-                    id: `recipe-${Date.now()}-${index}`,
-                  }
-                  const savedRecipes = localStorage.getItem('savedRecipes')
-                  let recipes: any[] = []
-                  if (savedRecipes) {
-                    try {
-                      recipes = JSON.parse(savedRecipes)
-                    } catch (e) {
-                      console.error('Error loading saved recipes:', e)
+                onClick={async () => {
+                  const recipeId = `recipe-${Date.now()}-${index}`
+                  setGeneratingRecipe(recipeId)
+
+                  try {
+                    // Generate full recipe details using the recipe generator API
+                    const response = await fetch('/api/generate-recipe', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        ingredients: [], // Will be generated based on recipe name
+                        dietType: recipe.dietType || preferences.dietType || '',
+                        cuisine: recipe.cuisine || preferences.cuisine || '',
+                        recipeName: recipe.name, // Pass recipe name to help generation
+                        recipeDescription: recipe.description,
+                        targetCalories: recipe.calories,
+                        targetPrepTime: recipe.prepTime,
+                        targetCookTime: recipe.cookTime,
+                      }),
+                    })
+
+                    const data = await response.json()
+
+                    if (!response.ok) {
+                      throw new Error(data.details || data.error || 'Failed to generate recipe')
                     }
+
+                    // Combine recommendation data with generated recipe
+                    const fullRecipe = {
+                      ...data.recipe,
+                      id: recipeId,
+                      name: recipe.name,
+                      description: recipe.description,
+                      prepTime: recipe.prepTime,
+                      cookTime: recipe.cookTime,
+                      calories: recipe.calories,
+                      image: recipe.image,
+                      dietType: recipe.dietType,
+                      cuisine: recipe.cuisine,
+                      servings: data.recipe.servings || 4,
+                    }
+
+                    // Save to localStorage
+                    const savedRecipes = localStorage.getItem('savedRecipes')
+                    let recipes: any[] = []
+                    if (savedRecipes) {
+                      try {
+                        recipes = JSON.parse(savedRecipes)
+                      } catch (e) {
+                        console.error('Error loading saved recipes:', e)
+                      }
+                    }
+                    recipes.unshift(fullRecipe)
+                    if (recipes.length > 50) {
+                      recipes = recipes.slice(0, 50)
+                    }
+                    localStorage.setItem('savedRecipes', JSON.stringify(recipes))
+
+                    // Navigate to recipe detail page
+                    router.push(`/recipes/${recipeId}`)
+                  } catch (err: any) {
+                    console.error('Error generating recipe:', err)
+                    alert(`Failed to generate recipe: ${err.message || 'Unknown error'}. Please try again.`)
+                  } finally {
+                    setGeneratingRecipe(null)
                   }
-                  recipes.unshift(recipeWithId)
-                  if (recipes.length > 50) {
-                    recipes = recipes.slice(0, 50)
-                  }
-                  localStorage.setItem('savedRecipes', JSON.stringify(recipes))
-                  window.location.href = `/recipes/${recipeWithId.id}`
                 }}
-                className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition-colors font-semibold mt-4"
+                disabled={generatingRecipe !== null}
+                className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition-colors font-semibold mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                View Recipe
+                {generatingRecipe ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  'View Recipe'
+                )}
               </button>
               </div>
             ))}
