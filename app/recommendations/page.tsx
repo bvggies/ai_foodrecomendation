@@ -228,7 +228,8 @@ export default function RecommendationsPage() {
               <button
                 onClick={async () => {
                   const recipeId = `recipe-${Date.now()}-${index}`
-                  setGeneratingRecipe(recipeId)
+                  const generatingKey = `generating-${index}`
+                  setGeneratingRecipe(generatingKey)
 
                   try {
                     // Generate full recipe details using the recipe generator API
@@ -293,10 +294,10 @@ export default function RecommendationsPage() {
                     setGeneratingRecipe(null)
                   }
                 }}
-                disabled={generatingRecipe !== null}
+                disabled={generatingRecipe === `generating-${index}`}
                 className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition-colors font-semibold mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {generatingRecipe ? (
+                {generatingRecipe === `generating-${index}` ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
                     Generating...
