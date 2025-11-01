@@ -127,7 +127,7 @@ export async function DELETE(req: NextRequest) {
 
     // Check if trying to delete own account
     const session = await getServerSession(authOptions)
-    if (session?.user?.id === parseInt(userId)) {
+    if (session?.user?.id && session.user.id === userId) {
       return NextResponse.json(
         { error: 'Cannot delete your own account' },
         { status: 400 }
