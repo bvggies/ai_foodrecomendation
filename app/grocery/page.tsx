@@ -148,6 +148,46 @@ export default function GroceryPage() {
   const boughtCount = items.filter((item) => item.bought).length
   const totalCount = items.length
 
+  // Show login prompt for unauthenticated users
+  if (status === 'loading') {
+    return (
+      <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <ShoppingCart className="w-12 h-12 text-orange-500 mx-auto mb-4 animate-pulse" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated') {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 text-center">
+          <Lock className="w-16 h-16 text-orange-500 mx-auto mb-6" />
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Sign In Required</h1>
+          <p className="text-gray-600 mb-8 text-lg">
+            Please sign in to access your Grocery List and sync it across devices.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/login"
+              className="bg-orange-500 text-white px-8 py-3 rounded-lg hover:bg-orange-600 transition-colors font-semibold text-center touch-manipulation min-h-[44px] flex items-center justify-center"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/"
+              className="border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-center touch-manipulation min-h-[44px] flex items-center justify-center"
+            >
+              Go to Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-4xl">
       <div className="mb-6 md:mb-8">
