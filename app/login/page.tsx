@@ -35,7 +35,18 @@ export default function LoginPage() {
         if (result?.error) {
           setError('Invalid email or password')
         } else {
-          router.push('/dashboard')
+          // Check if user is admin and redirect accordingly
+          const userInfo = await fetch('/api/auth/session').then(r => r.json())
+          if (userInfo?.user?.id) {
+            const adminCheck = await fetch('/api/admin/check').then(r => r.json())
+            if (adminCheck.isAdmin) {
+              router.push('/admin')
+            } else {
+              router.push('/dashboard')
+            }
+          } else {
+            router.push('/dashboard')
+          }
           router.refresh()
         }
       } else {

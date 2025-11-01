@@ -46,8 +46,20 @@ export default function DashboardPage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
+    } else if (status === 'authenticated' && session?.user) {
+      // Check if user is admin and redirect to admin panel
+      fetch('/api/admin/check')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.isAdmin) {
+            router.push('/admin')
+          }
+        })
+        .catch(() => {
+          // If check fails, stay on dashboard
+        })
     }
-  }, [status, router])
+  }, [status, session, router])
 
   useEffect(() => {
     if (session?.user?.id) {

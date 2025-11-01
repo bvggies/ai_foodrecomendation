@@ -10,7 +10,9 @@ export async function isAdmin(): Promise<boolean> {
     }
 
     const db = await getDb()
-    const result = await db.query('SELECT role FROM users WHERE id = $1', [session.user.id])
+    // Convert id to number if it's a string (database expects integer)
+    const userId = typeof session.user.id === 'string' ? parseInt(session.user.id) : session.user.id
+    const result = await db.query('SELECT role FROM users WHERE id = $1', [userId])
     
     if (result.rows.length === 0) {
       return false
