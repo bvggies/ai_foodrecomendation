@@ -238,6 +238,7 @@ export default function DashboardPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="gemini">Gemini Spark (Free tier available)</option>
+              <option value="groq">Groq Turbo (Free tier available)</option>
               <option value="openai">ChatGPT</option>
               <option value="claude">Claude Wisdom</option>
             </select>

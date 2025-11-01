@@ -27,6 +27,12 @@ export async function GET() {
         free: false,
         description: 'Thoughtful & precise',
       },
+      groq: {
+        name: 'Groq Turbo',
+        available: providers.includes('groq'),
+        free: true,
+        description: 'Ultra-fast & free',
+      },
     }
 
     // Prefer Gemini as default if available, otherwise use first available

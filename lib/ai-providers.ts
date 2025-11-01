@@ -1,9 +1,9 @@
 /**
  * AI Provider abstraction layer
- * Supports multiple AI providers: OpenAI, Gemini, Claude
+ * Supports multiple AI providers: OpenAI, Gemini, Claude, Groq
  */
 
-export type AIProvider = 'openai' | 'gemini' | 'claude'
+export type AIProvider = 'openai' | 'gemini' | 'claude' | 'groq'
 
 export interface AIResponse {
   content: string
@@ -165,6 +165,52 @@ export async function callClaude(
 }
 
 /**
+ * Groq Provider (FREE tier - Very fast inference)
+ */
+export async function callGroq(
+  messages: AIMessage[],
+  options: { temperature?: number; maxTokens?: number } = {}
+): Promise<AIResponse> {
+  const apiKey = process.env.GROQ_API_KEY
+  if (!apiKey || apiKey.trim() === '' || apiKey === 'your_groq_api_key_here') {
+    throw new Error('Groq API key not configured')
+  }
+
+  const model = process.env.GROQ_MODEL || 'llama-3.1-70b-versatile'
+  
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+      temperature: options.temperature || 0.7,
+      max_tokens: options.maxTokens || 1000,
+    }),
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: { message: 'Unknown error' } }))
+    throw new Error(error.error?.message || `Groq API error: ${response.status}`)
+  }
+
+  const data = await response.json()
+  const content = data.choices?.[0]?.message?.content || 'No response generated'
+
+  return {
+    content,
+    model: model,
+    provider: 'groq',
+  }
+}
+
+/**
  * Main function to call AI provider based on selection
  */
 export async function callAIProvider(
@@ -179,6 +225,8 @@ export async function callAIProvider(
       return callGemini(messages, options)
     case 'claude':
       return callClaude(messages, options)
+    case 'groq':
+      return callGroq(messages, options)
     default:
       throw new Error(`Unknown AI provider: ${provider}`)
   }
