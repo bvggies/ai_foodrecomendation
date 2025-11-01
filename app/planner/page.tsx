@@ -31,14 +31,15 @@ export default function PlannerPage() {
   // Load meals from API or localStorage
   useEffect(() => {
     const loadMeals = async () => {
-      if (session?.user) {
-        // Load from API
-        try {
+      setIsLoading(true)
+      try {
+        if (session?.user) {
+          // Load from API
           const startDate = format(addDays(selectedWeek, 0), 'yyyy-MM-dd')
           const endDate = format(addDays(selectedWeek, 6), 'yyyy-MM-dd')
           const response = await fetch(`/api/meals?startDate=${startDate}&endDate=${endDate}`)
           const data = await response.json()
-          if (data.meals) {
+          if (data.meals && Array.isArray(data.meals)) {
             // Group meals by date
             const mealsByDate: { [key: string]: Meal[] } = {}
             data.meals.forEach((m: any) => {
@@ -64,54 +65,105 @@ export default function PlannerPage() {
             })
             setMeals(weekMeals)
           }
-        } catch (error) {
-          console.error('Error loading meals:', error)
-        }
-      } else {
-        // Load from localStorage
-        const savedMeals = localStorage.getItem('mealPlanner')
-        if (savedMeals) {
-          try {
-            const parsed = JSON.parse(savedMeals)
-            // Convert date strings back to Date objects
-            const mealsWithDates = parsed.map((day: any) => ({
-              ...day,
-              date: new Date(day.date),
-            }))
-            setMeals(mealsWithDates)
-          } catch (e) {
-            console.error('Error loading meal planner:', e)
+        } else {
+          // Load from localStorage
+          const savedMeals = localStorage.getItem('mealPlanner')
+          if (savedMeals) {
+            try {
+              const parsed = JSON.parse(savedMeals)
+              // Convert date strings back to Date objects
+              const mealsWithDates = parsed.map((day: any) => ({
+                ...day,
+                date: new Date(day.date),
+              }))
+              
+              // Filter meals for the current week
+              const weekMeals = Array.from({ length: 7 }, (_, i) => {
+                const dayDate = addDays(selectedWeek, i)
+                const savedDay = mealsWithDates.find((m: DayMeals) =>
+                  isSameDay(new Date(m.date), dayDate)
+                )
+                return savedDay || { date: dayDate, meals: [] }
+              })
+              setMeals(weekMeals)
+            } catch (e) {
+              console.error('Error loading meal planner:', e)
+              // Initialize empty week if error
+              setMeals(
+                Array.from({ length: 7 }, (_, i) => ({
+                  date: addDays(selectedWeek, i),
+                  meals: [],
+                }))
+              )
+            }
+          } else {
+            // Initialize empty week if no saved meals
+            setMeals(
+              Array.from({ length: 7 }, (_, i) => ({
+                date: addDays(selectedWeek, i),
+                meals: [],
+              }))
+            )
           }
         }
+      } catch (error) {
+        console.error('Error loading meals:', error)
+      } finally {
+        setIsLoading(false)
       }
     }
 
     loadMeals()
   }, [session, selectedWeek])
 
+  // Track if we're currently loading to prevent save loop
+  const [isLoading, setIsLoading] = useState(false)
+
   // Save meals to API or localStorage whenever they change
   useEffect(() => {
+    // Don't save if we're currently loading (prevents infinite loop)
+    if (isLoading) return
+
     if (meals.length > 0) {
       if (session?.user) {
-        // Save to API
+        // Save to API - convert Date objects to strings
         const saveToAPI = async () => {
           try {
-            await fetch('/api/meals', {
+            const mealsToSave = meals.map(dayMeals => ({
+              date: format(dayMeals.date, 'yyyy-MM-dd'),
+              meals: dayMeals.meals.map(meal => ({
+                id: meal.id,
+                name: meal.name,
+                type: meal.type,
+                time: meal.time || null,
+              }))
+            }))
+
+            const response = await fetch('/api/meals', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ meals }),
+              body: JSON.stringify({ meals: mealsToSave }),
             })
+
+            if (!response.ok) {
+              const error = await response.json()
+              console.error('Error saving meals:', error)
+            }
           } catch (error) {
             console.error('Error saving meals:', error)
           }
         }
         saveToAPI()
       } else {
-        // Save to localStorage
-        localStorage.setItem('mealPlanner', JSON.stringify(meals))
+        // Save to localStorage - convert Date objects to ISO strings for storage
+        const mealsToSave = meals.map(dayMeals => ({
+          date: dayMeals.date.toISOString(),
+          meals: dayMeals.meals
+        }))
+        localStorage.setItem('mealPlanner', JSON.stringify(mealsToSave))
       }
     }
-  }, [meals, session])
+  }, [meals, session, isLoading])
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [newMeal, setNewMeal] = useState({ name: '', type: 'lunch' as Meal['type'], time: '' })
@@ -168,54 +220,19 @@ export default function PlannerPage() {
     )
   }
 
-  const loadWeekMeals = (weekDate: Date) => {
-    const savedMeals = localStorage.getItem('mealPlanner')
-    if (savedMeals) {
-      try {
-        const parsed = JSON.parse(savedMeals)
-        const mealsWithDates = parsed.map((day: any) => ({
-          ...day,
-          date: new Date(day.date),
-        }))
-        // Find meals for this week
-        const weekMeals = Array.from({ length: 7 }, (_, i) => {
-          const dayDate = addDays(weekDate, i)
-          const savedDay = mealsWithDates.find((m: DayMeals) =>
-            isSameDay(new Date(m.date), dayDate)
-          )
-          return savedDay || { date: dayDate, meals: [] }
-        })
-        setMeals(weekMeals)
-        return
-      } catch (e) {
-        console.error('Error loading meal planner:', e)
-      }
-    }
-    // If no saved meals, create empty week
-    setMeals(
-      Array.from({ length: 7 }, (_, i) => ({
-        date: addDays(weekDate, i),
-        meals: [],
-      }))
-    )
-  }
-
   const goToPrevWeek = () => {
     const newWeek = addDays(selectedWeek, -7)
     setSelectedWeek(newWeek)
-    loadWeekMeals(newWeek)
   }
 
   const goToNextWeek = () => {
     const newWeek = addDays(selectedWeek, 7)
     setSelectedWeek(newWeek)
-    loadWeekMeals(newWeek)
   }
 
   const goToToday = () => {
     const today = startOfWeek(new Date(), { weekStartsOn: 1 })
     setSelectedWeek(today)
-    loadWeekMeals(today)
   }
 
   return (

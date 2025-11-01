@@ -47,32 +47,49 @@ export async function POST(req: NextRequest) {
     const { meals } = await req.json()
     const db = await getDb()
 
-    // Clear existing meals for the date range
-    if (meals.length > 0) {
-      const dates = meals.map((m: any) => m.date)
-      const minDate = Math.min(...dates)
-      const maxDate = Math.max(...dates)
+    // Get all dates from the meals array to determine the range
+    const dates = meals.map((m: any) => m.date).filter(Boolean)
+    
+    if (dates.length > 0) {
+      // Find min and max dates
+      const sortedDates = dates.sort()
+      const minDate = sortedDates[0]
+      const maxDate = sortedDates[sortedDates.length - 1]
       
+      // Clear existing meals for this date range
       await db.query(
         'DELETE FROM meals WHERE user_id = $1 AND date >= $2 AND date <= $3',
         [userId, minDate, maxDate]
       )
     }
 
-    // Insert new meals
-    for (const meal of meals) {
-      for (const mealItem of meal.meals || []) {
-        await db.query(
-          'INSERT INTO meals (id, date, name, type, time, user_id) VALUES ($1, $2, $3, $4, $5, $6)',
-          [
-            mealItem.id,
-            meal.date,
-            mealItem.name,
-            mealItem.type,
-            mealItem.time || null,
-            userId
-          ]
-        )
+    // Insert new meals one by one
+    for (const dayMeals of meals) {
+      if (!dayMeals.date || !dayMeals.meals || !Array.isArray(dayMeals.meals)) continue
+      
+      for (const mealItem of dayMeals.meals) {
+        if (!mealItem.id || !mealItem.name) continue
+        
+        try {
+          // Delete existing meal with same ID for this user (if any)
+          await db.query('DELETE FROM meals WHERE id = $1 AND user_id = $2', [mealItem.id, userId])
+          
+          // Insert the meal
+          await db.query(
+            `INSERT INTO meals (id, date, name, type, time, user_id) 
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [
+              mealItem.id,
+              dayMeals.date,
+              mealItem.name,
+              mealItem.type,
+              mealItem.time || null,
+              userId
+            ]
+          )
+        } catch (err: any) {
+          console.error('Error inserting meal:', err)
+        }
       }
     }
 
