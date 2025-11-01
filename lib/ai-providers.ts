@@ -76,28 +76,35 @@ export async function callGemini(
       parts: [{ text: msg.content }],
     }))
 
-  // If there's a system instruction, prepend it to the first user message
-  if (systemInstruction && geminiMessages.length > 0 && geminiMessages[0].role === 'user') {
-    geminiMessages[0].parts[0].text = `${systemInstruction}\n\n${geminiMessages[0].parts[0].text}`
+  // For v1beta API, we can use systemInstruction field
+  // If there's a system instruction, include it in the request
+  const requestBody: any = {
+    contents: geminiMessages,
+    generationConfig: {
+      temperature: options.temperature || 0.7,
+      maxOutputTokens: options.maxTokens || 1000,
+    },
   }
 
-  const model = process.env.GEMINI_MODEL || 'gemini-pro'
+  // Add system instruction if present (v1beta supports this)
+  if (systemInstruction) {
+    requestBody.systemInstruction = {
+      parts: [{ text: systemInstruction }],
+    }
+  }
+
+  // Use gemini-1.5-flash for v1 API (gemini-pro not available in v1)
+  const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash'
   
-  // Use v1 API instead of v1beta for better compatibility
-  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`
+  // Use v1beta API for better model support
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
   
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      contents: geminiMessages,
-      generationConfig: {
-        temperature: options.temperature || 0.7,
-        maxOutputTokens: options.maxTokens || 1000,
-      },
-    }),
+    body: JSON.stringify(requestBody),
   })
 
   if (!response.ok) {
