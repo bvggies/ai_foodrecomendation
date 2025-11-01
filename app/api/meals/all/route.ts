@@ -37,7 +37,15 @@ export async function GET(req: NextRequest) {
     params.push(limit)
 
     const result = await db.query(query, params)
-    return NextResponse.json({ meals: result.rows })
+    
+    // Convert date to string format for consistency
+    const meals = result.rows.map((row: any) => ({
+      ...row,
+      date: typeof row.date === 'string' ? row.date : row.date.toISOString().split('T')[0],
+      completed: row.completed || false,
+    }))
+    
+    return NextResponse.json({ meals })
   } catch (error: any) {
     console.error('Error fetching all meals:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
