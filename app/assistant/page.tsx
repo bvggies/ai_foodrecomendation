@@ -1,0 +1,135 @@
+'use client'
+
+import { useState, useRef, useEffect } from 'react'
+import { Send, ChefHat, Loader2 } from 'lucide-react'
+
+interface Message {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export default function AssistantPage() {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'assistant',
+      content: "Hello! I'm your AI Food Assistant. I can help you with:\n\n• Recipe suggestions based on ingredients\n• Meal planning and diet advice\n• Cooking tips and techniques\n• Nutritional information\n\nWhat would you like to cook today?",
+    },
+  ])
+  const [input, setInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim() || isLoading) return
+
+    const userMessage: Message = { role: 'user', content: input }
+    setMessages((prev) => [...prev, userMessage])
+    setInput('')
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input, history: messages }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get response')
+      }
+
+      const data = await response.json()
+      setMessages((prev) => [...prev, { role: 'assistant', content: data.response }])
+    } catch (error) {
+      console.error('Error:', error)
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: 'Sorry, I encountered an error. Please make sure your OpenAI API key is set in the environment variables.',
+        },
+      ])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="bg-white rounded-2xl shadow-xl h-[calc(100vh-8rem)] flex flex-col">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-t-2xl">
+          <div className="flex items-center gap-3">
+            <ChefHat className="w-8 h-8" />
+            <div>
+              <h1 className="text-2xl font-bold">AI Food Assistant</h1>
+              <p className="text-orange-100 text-sm">Ask me anything about food, recipes, or meal planning</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[80%] rounded-2xl p-4 ${
+                  message.role === 'user'
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-gray-100 text-gray-800'
+                }`}
+              >
+                <div className="whitespace-pre-wrap">{message.content}</div>
+              </div>
+            </div>
+          ))}
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-gray-100 rounded-2xl p-4">
+                <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input */}
+        <form onSubmit={handleSubmit} className="p-6 border-t border-gray-200">
+          <div className="flex gap-4">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask me about recipes, meal plans, or cooking tips..."
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              disabled={isLoading || !input.trim()}
+              className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            >
+              <Send className="w-5 h-5" />
+              <span className="hidden sm:inline">Send</span>
+            </button>
+          </div>
+          <div className="mt-2 text-xs text-gray-500">
+            Try: "What can I cook with eggs, tomatoes, and onions?" or "Suggest a healthy dinner under 500 calories"
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
