@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin'
 import { getDb } from '@/lib/db'
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     await requireAdmin()
