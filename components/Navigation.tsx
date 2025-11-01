@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { Home, MessageSquare, Utensils, Calendar, ShoppingCart, ChefHat, Heart, User, LogOut, Shield } from 'lucide-react'
-import Logo from './Logo'
 import { useState, useEffect } from 'react'
 
 export default function Navigation() {
@@ -24,11 +23,7 @@ export default function Navigation() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:bottom-4 md:left-1/2 md:right-auto md:transform md:-translate-x-1/2 md:w-[95%] md:max-w-6xl">
       <div className="bg-white/95 backdrop-blur-lg rounded-t-2xl md:rounded-2xl shadow-xl border-t md:border border-gray-200 md:border-white/20 px-2 md:px-4 py-2 md:py-3 safe-area-inset-bottom">
-        <div className="flex items-center justify-between gap-1 md:gap-0">
-          <Link href="/" className="flex items-center min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0">
-            <Logo size="sm" showText={false} />
-          </Link>
-          <div className="flex gap-0.5 md:gap-1 items-center flex-1 justify-center overflow-x-auto scrollbar-hide">
+        <div className="flex items-center justify-center gap-0.5 md:gap-1 overflow-x-auto scrollbar-hide">
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
