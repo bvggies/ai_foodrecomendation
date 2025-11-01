@@ -117,19 +117,23 @@ export default function DashboardPage() {
   }
 
   const addToArray = (key: keyof UserPreferences, value: string) => {
-    if (value.trim() && !preferences[key].includes(value.trim())) {
+    const currentValue = preferences[key]
+    if (value.trim() && Array.isArray(currentValue) && !currentValue.includes(value.trim())) {
       setPreferences({
         ...preferences,
-        [key]: [...(preferences[key] as string[]), value.trim()],
+        [key]: [...currentValue, value.trim()],
       })
     }
   }
 
   const removeFromArray = (key: keyof UserPreferences, value: string) => {
-    setPreferences({
-      ...preferences,
-      [key]: (preferences[key] as string[]).filter((item) => item !== value),
-    })
+    const currentValue = preferences[key]
+    if (Array.isArray(currentValue)) {
+      setPreferences({
+        ...preferences,
+        [key]: currentValue.filter((item) => item !== value),
+      })
+    }
   }
 
   if (status === 'loading' || loading) {
