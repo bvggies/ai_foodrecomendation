@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           return {
-            id: user.id,
+            id: String(user.id), // Convert to string for NextAuth compatibility
             email: user.email,
             name: user.name,
           }
