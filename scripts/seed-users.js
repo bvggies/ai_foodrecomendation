@@ -1,7 +1,28 @@
 /**
  * Seed script to create admin accounts and sample users
  * Run with: node scripts/seed-users.js
+ * 
+ * Make sure DATABASE_URL is set in your environment or .env.local file
  */
+
+// Load environment variables from .env.local if it exists
+try {
+  const fs = require('fs')
+  if (fs.existsSync('.env.local')) {
+    const envFile = fs.readFileSync('.env.local', 'utf8')
+    envFile.split('\n').forEach(line => {
+      const [key, ...valueParts] = line.split('=')
+      if (key && valueParts.length > 0) {
+        const value = valueParts.join('=').trim().replace(/^["']|["']$/g, '')
+        if (!process.env[key.trim()]) {
+          process.env[key.trim()] = value
+        }
+      }
+    })
+  }
+} catch (e) {
+  console.log('Note: Could not load .env.local, using system environment variables')
+}
 
 const { Pool } = require('pg')
 const bcrypt = require('bcryptjs')
