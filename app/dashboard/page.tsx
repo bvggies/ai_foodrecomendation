@@ -32,6 +32,7 @@ export default function DashboardPage() {
     allergies: [],
     health_goals: [],
     favorite_cuisines: [],
+    ai_provider: 'openai',
     notes: '',
   })
   const [loading, setLoading] = useState(true)
@@ -220,6 +221,25 @@ export default function DashboardPage() {
             onRemove={(value) => removeFromArray('favorite_cuisines', value)}
             placeholder="e.g., Ghanaian, Italian, Asian"
           />
+
+          {/* AI Provider Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Preferred AI Assistant
+            </label>
+            <select
+              value={preferences.ai_provider || 'openai'}
+              onChange={(e) => setPreferences({ ...preferences, ai_provider: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="openai">OpenAI (GPT-3.5/GPT-4)</option>
+              <option value="gemini">Google Gemini (Free tier available)</option>
+              <option value="claude">Anthropic Claude</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Choose your preferred AI for chat and recipe generation. Some providers may require API keys to be configured.
+            </p>
+          </div>
 
           {/* Notes */}
           <div>

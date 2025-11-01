@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import OpenAI from 'openai'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { getFoodKnowledgeBase } from '@/lib/food-knowledge'
+import { callAIProvider, getAvailableProviders, type AIProvider } from '@/lib/ai-providers'
+import { getDb } from '@/lib/db'
 
-// Initialize OpenAI client (will be recreated with valid key in route handler)
-let openai: OpenAI | null = null
+// Removed OpenAI initialization - using provider abstraction
 
 function getSystemPrompt() {
   const foodKnowledge = getFoodKnowledgeBase()
@@ -38,29 +40,41 @@ If the user asks about specific ingredients common in Ghanaian cooking (plantain
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, history } = await req.json()
+    const { message, history, provider: requestedProvider } = await req.json()
 
-    // Check if API key exists and is not empty
-    const apiKey = process.env.OPENAI_API_KEY
-    if (!apiKey || apiKey.trim() === '' || apiKey === 'your_openai_api_key_here') {
-      console.error('OpenAI API Key Check:', {
-        exists: !!apiKey,
-        length: apiKey?.length || 0,
-        startsWith: apiKey?.substring(0, 7) || 'none',
-      })
-      return NextResponse.json(
-        { 
-          error: 'OpenAI API key not configured',
-          details: 'Please set OPENAI_API_KEY in your environment variables. Make sure to redeploy after adding it.',
-        },
-        { status: 500 }
-      )
+    // Get user's preferred AI provider (if logged in)
+    let selectedProvider: AIProvider = 'openai'
+    try {
+      const session = await getServerSession(authOptions)
+      if (session?.user?.id) {
+        const db = await getDb()
+        const prefsResult = await db.query(
+          'SELECT ai_provider FROM user_preferences WHERE user_id = $1',
+          [session.user.id]
+        )
+        if (prefsResult.rows.length > 0 && prefsResult.rows[0].ai_provider) {
+          selectedProvider = prefsResult.rows[0].ai_provider as AIProvider
+        }
+      }
+    } catch (e) {
+      // If we can't get user preferences, use default
     }
 
-    // Initialize OpenAI client with validated API key
-    openai = new OpenAI({
-      apiKey: apiKey,
-    })
+    // Use requested provider if provided, otherwise use user preference
+    const provider: AIProvider = requestedProvider || selectedProvider
+
+    // Check available providers
+    const availableProviders = getAvailableProviders()
+    if (!availableProviders.includes(provider)) {
+      return NextResponse.json(
+        {
+          error: `AI provider "${provider}" is not available`,
+          details: `Available providers: ${availableProviders.join(', ')}. Please configure the required API keys.`,
+          availableProviders,
+        },
+        { status: 400 }
+      )
+    }
 
     const messages = [
       { role: 'system' as const, content: getSystemPrompt() },
@@ -71,19 +85,17 @@ export async function POST(req: NextRequest) {
       { role: 'user' as const, content: message },
     ]
 
-    // Use configured model or fallback to gpt-3.5-turbo (more widely available)
-    const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
-    
-    const completion = await openai.chat.completions.create({
-      model: model,
-      messages: messages,
+    // Call the selected AI provider
+    const aiResponse = await callAIProvider(provider, messages, {
       temperature: 0.7,
-      max_tokens: 1000,
+      maxTokens: 1000,
     })
 
-    const response = completion.choices[0]?.message?.content || 'Sorry, I could not generate a response.'
-
-    return NextResponse.json({ response })
+    return NextResponse.json({
+      response: aiResponse.content,
+      provider: aiResponse.provider,
+      model: aiResponse.model,
+    })
   } catch (error: any) {
     console.error('OpenAI API error:', error)
     

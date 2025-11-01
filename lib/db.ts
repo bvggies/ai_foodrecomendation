@@ -134,10 +134,21 @@ export async function initDb() {
         allergies TEXT[],
         health_goals TEXT[],
         favorite_cuisines TEXT[],
+        ai_provider VARCHAR(20) DEFAULT 'openai',
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `)
+
+    // Add ai_provider column if it doesn't exist
+    await db.query(`
+      DO $$ 
+      BEGIN
+        ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS ai_provider VARCHAR(20) DEFAULT 'openai';
+      EXCEPTION
+        WHEN duplicate_column THEN NULL;
+      END $$;
     `)
 
     // Create indexes

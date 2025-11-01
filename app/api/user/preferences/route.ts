@@ -24,6 +24,7 @@ export async function GET() {
           allergies: [],
           health_goals: [],
           favorite_cuisines: [],
+          ai_provider: 'openai',
           notes: '',
         },
       })
@@ -48,13 +49,14 @@ export async function POST(req: NextRequest) {
     const db = await getDb()
 
     await db.query(
-      `INSERT INTO user_preferences (user_id, diet_preferences, allergies, health_goals, favorite_cuisines, notes, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
+      `INSERT INTO user_preferences (user_id, diet_preferences, allergies, health_goals, favorite_cuisines, ai_provider, notes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
        ON CONFLICT (user_id) DO UPDATE SET
        diet_preferences = EXCLUDED.diet_preferences,
        allergies = EXCLUDED.allergies,
        health_goals = EXCLUDED.health_goals,
        favorite_cuisines = EXCLUDED.favorite_cuisines,
+       ai_provider = EXCLUDED.ai_provider,
        notes = EXCLUDED.notes,
        updated_at = CURRENT_TIMESTAMP`,
       [
@@ -63,6 +65,7 @@ export async function POST(req: NextRequest) {
         preferences.allergies || [],
         preferences.health_goals || [],
         preferences.favorite_cuisines || [],
+        preferences.ai_provider || 'openai',
         preferences.notes || '',
       ]
     )

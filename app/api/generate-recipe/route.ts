@@ -1,21 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import OpenAI from 'openai'
 import { findFoodByName, findFoodsByIngredients, getFoodKnowledgeBase } from '@/lib/food-knowledge'
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
-})
+import { callAIProvider, getAvailableProviders, type AIProvider } from '@/lib/ai-providers'
+import { getDb } from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
-    const { ingredients, dietType, cuisine } = await req.json()
+    const { ingredients, dietType, cuisine, provider: requestedProvider } = await req.json()
 
-    if (!process.env.OPENAI_API_KEY) {
+    // Get user's preferred AI provider (if logged in)
+    let selectedProvider: AIProvider = 'openai'
+    try {
+      const session = await getServerSession(authOptions)
+      if (session?.user?.id) {
+        const db = await getDb()
+        const prefsResult = await db.query(
+          'SELECT ai_provider FROM user_preferences WHERE user_id = $1',
+          [session.user.id]
+        )
+        if (prefsResult.rows.length > 0 && prefsResult.rows[0].ai_provider) {
+          selectedProvider = prefsResult.rows[0].ai_provider as AIProvider
+        }
+      }
+    } catch (e) {
+      // If we can't get user preferences, use default
+    }
+
+    // Use requested provider if provided, otherwise use user preference
+    const provider: AIProvider = requestedProvider || selectedProvider
+
+    // Check available providers
+    const availableProviders = getAvailableProviders()
+    if (!availableProviders.includes(provider)) {
       return NextResponse.json(
-        { error: 'OpenAI API key not configured' },
-        { status: 500 }
+        {
+          error: `AI provider "${provider}" is not available`,
+          details: `Available providers: ${availableProviders.join(', ')}. Please configure the required API keys.`,
+          availableProviders,
+        },
+        { status: 400 }
       )
     }
 
@@ -72,12 +96,10 @@ export async function POST(req: NextRequest) {
 
 Make sure the recipe is creative, practical, and includes all necessary ingredients and detailed step-by-step instructions.`
 
-    // Use configured model or fallback to gpt-3.5-turbo
-    const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
-    
-    const completion = await openai.chat.completions.create({
-      model: model,
-      messages: [
+    // Call the selected AI provider
+    const aiResponse = await callAIProvider(
+      provider,
+      [
         {
           role: 'system',
           content: 'You are a professional chef and recipe generator. Always respond with valid JSON only, no additional text.',
@@ -87,11 +109,13 @@ Make sure the recipe is creative, practical, and includes all necessary ingredie
           content: prompt,
         },
       ],
-      temperature: 0.7,
-      max_tokens: 2000,
-    })
+      {
+        temperature: 0.7,
+        maxTokens: 2000,
+      }
+    )
 
-    const response = completion.choices[0]?.message?.content || ''
+    const response = aiResponse.content
     
     // Try to extract JSON from the response
     let recipe
