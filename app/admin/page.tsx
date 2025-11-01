@@ -662,13 +662,22 @@ export default function AdminDashboardPage() {
                   <h2 className="text-2xl font-bold">User Management</h2>
                   <p className="text-gray-600 mt-1">Manage all users in the system</p>
                 </div>
-                <button
-                  onClick={() => exportData('users')}
-                  className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors flex items-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Export
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleAddUser}
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Add User
+                  </button>
+                  <button
+                    onClick={() => exportData('users')}
+                    className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors flex items-center gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Export
+                  </button>
+                </div>
               </div>
               
               {/* Search and Filters */}
@@ -1021,72 +1030,241 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* Edit User Modal */}
-        {editingUser && (
+        {/* Add User Modal */}
+        {isAddingUser && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+            <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Edit User</h2>
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <UserPlus className="w-6 h-6 text-green-500" />
+                  Add New User
+                </h2>
                 <button 
-                  onClick={() => setEditingUser(null)} 
+                  onClick={() => {
+                    setIsAddingUser(false)
+                    setFormError('')
+                    setAddForm({ name: '', email: '', role: 'user', password: '', confirmPassword: '' })
+                  }} 
                   className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
+              
+              {formError && (
+                <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
+                  {formError}
+                </div>
+              )}
+
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Name <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
-                    value={editForm.name}
-                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    value={addForm.name}
+                    onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter user's full name"
+                    disabled={formLoading}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="email"
-                    value={editForm.email}
-                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    value={addForm.email}
+                    onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="user@example.com"
+                    disabled={formLoading}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Role <span className="text-red-500">*</span>
+                  </label>
                   <select
-                    value={editForm.role}
-                    onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    value={addForm.role}
+                    onChange={(e) => setAddForm({ ...addForm, role: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    disabled={formLoading}
                   >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">New Password (optional)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={addForm.password}
+                    onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Minimum 6 characters"
+                    disabled={formLoading}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirm Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={addForm.confirmPassword}
+                    onChange={(e) => setAddForm({ ...addForm, confirmPassword: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Re-enter password"
+                    disabled={formLoading}
+                  />
+                </div>
+              </div>
+              <div className="flex gap-4 mt-6">
+                <button
+                  onClick={() => {
+                    setIsAddingUser(false)
+                    setFormError('')
+                    setAddForm({ name: '', email: '', role: 'user', password: '', confirmPassword: '' })
+                  }}
+                  disabled={formLoading}
+                  className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveNewUser}
+                  disabled={formLoading}
+                  className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {formLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4" />
+                      Create User
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit User Modal */}
+        {editingUser && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <Edit className="w-6 h-6 text-purple-500" />
+                  Edit User
+                </h2>
+                <button 
+                  onClick={() => {
+                    setEditingUser(null)
+                    setFormError('')
+                    setEditForm({ name: '', email: '', role: 'user', password: '' })
+                  }} 
+                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {formError && (
+                <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
+                  {formError}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    disabled={formLoading}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    disabled={formLoading}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Role <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={editForm.role}
+                    onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    disabled={formLoading}
+                  >
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    New Password (optional)
+                  </label>
                   <input
                     type="password"
                     value={editForm.password}
                     onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="Leave empty to keep current password"
+                    disabled={formLoading}
                   />
+                  <p className="text-xs text-gray-500 mt-1">Leave empty to keep the current password</p>
                 </div>
               </div>
               <div className="flex gap-4 mt-6">
                 <button
-                  onClick={() => setEditingUser(null)}
-                  className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
+                  onClick={() => {
+                    setEditingUser(null)
+                    setFormError('')
+                    setEditForm({ name: '', email: '', role: 'user', password: '' })
+                  }}
+                  disabled={formLoading}
+                  className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSaveUser}
-                  className="flex-1 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors font-semibold"
+                  disabled={formLoading}
+                  className="flex-1 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Save Changes
+                  {formLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
                 </button>
               </div>
             </div>
