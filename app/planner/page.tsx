@@ -251,15 +251,26 @@ export default function PlannerPage() {
   }
 
   const toggleMealCompleted = async (mealId: string, currentCompleted: boolean) => {
-    // Optimistically update UI
+    const newCompleted = !currentCompleted
+    
+    // Optimistically update UI in calendar
     setMeals((prev) =>
       prev.map((dayMeals) => ({
         ...dayMeals,
         meals: dayMeals.meals.map((m) =>
-          m.id === mealId ? { ...m, completed: !currentCompleted } : m
+          m.id === mealId ? { ...m, completed: newCompleted } : m
         ),
       }))
     )
+
+    // Also update in all meals view if it's shown
+    if (showAllMeals) {
+      setAllMeals((prev) =>
+        prev.map((m) =>
+          m.id === mealId ? { ...m, completed: newCompleted } : m
+        )
+      )
+    }
 
     if (session?.user) {
       try {
@@ -268,7 +279,7 @@ export default function PlannerPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             mealId,
-            updates: { completed: !currentCompleted },
+            updates: { completed: newCompleted },
           }),
         })
       } catch (error) {
@@ -284,7 +295,12 @@ export default function PlannerPage() {
       const response = await fetch('/api/meals/all?limit=200')
       const data = await response.json()
       if (data.meals) {
-        setAllMeals(data.meals)
+        // Convert date strings to Date objects for display
+        const mealsWithDates = data.meals.map((meal: any) => ({
+          ...meal,
+          date: typeof meal.date === 'string' ? meal.date : meal.date.toISOString().split('T')[0],
+        }))
+        setAllMeals(mealsWithDates)
       }
     } catch (error) {
       console.error('Error loading all meals:', error)
@@ -295,7 +311,8 @@ export default function PlannerPage() {
     if (showAllMeals && session?.user) {
       loadAllMeals()
     }
-  }, [showAllMeals, session])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showAllMeals, session?.user])
 
   const goToPrevWeek = () => {
     const newWeek = addDays(selectedWeek, -7)
@@ -391,7 +408,7 @@ export default function PlannerPage() {
                       </span>
                     </div>
                     <div className="text-sm text-gray-600">
-                      {format(new Date(meal.date), 'MMM d, yyyy')}
+                      {format(new Date(meal.date + 'T00:00:00'), 'MMM d, yyyy')}
                       {meal.time && ` • ${meal.time}`}
                     </div>
                   </div>
