@@ -5,6 +5,9 @@ import { getFoodKnowledgeBase } from '@/lib/food-knowledge'
 import { callAIProvider, getAvailableProviders, type AIProvider } from '@/lib/ai-providers'
 import { getDb } from '@/lib/db'
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic'
+
 // Removed OpenAI initialization - using provider abstraction
 
 function getSystemPrompt() {

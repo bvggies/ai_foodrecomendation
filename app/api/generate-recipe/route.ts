@@ -5,6 +5,9 @@ import { findFoodByName, findFoodsByIngredients, getFoodKnowledgeBase } from '@/
 import { callAIProvider, getAvailableProviders, type AIProvider } from '@/lib/ai-providers'
 import { getDb } from '@/lib/db'
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: NextRequest) {
   try {
     const { ingredients, dietType, cuisine, provider: requestedProvider } = await req.json()
