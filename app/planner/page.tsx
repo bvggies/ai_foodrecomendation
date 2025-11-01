@@ -139,12 +139,20 @@ export default function PlannerPage() {
   ]
 
   const openAddModal = (day: Date) => {
+    // Prevent opening modal if not authenticated
+    if (!session?.user) {
+      return
+    }
     setSelectedDay(day)
     setShowAddModal(true)
     setNewMeal({ name: '', type: 'lunch', time: '' })
   }
 
   const addMeal = async () => {
+    // Prevent adding meals if not authenticated
+    if (!session?.user) {
+      return
+    }
     if (!selectedDay || !newMeal.name.trim()) return
 
     const mealId = `meal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
@@ -190,21 +198,6 @@ export default function PlannerPage() {
       } catch (error) {
         console.error('Error saving meal:', error)
       }
-    } else {
-      // Save to localStorage
-      const mealsToSave = meals.map(dayMeals => {
-        if (isSameDay(dayMeals.date, selectedDay)) {
-          return {
-            date: dayMeals.date.toISOString(),
-            meals: [...dayMeals.meals, newMealData],
-          }
-        }
-        return {
-          date: dayMeals.date.toISOString(),
-          meals: dayMeals.meals,
-        }
-      })
-      localStorage.setItem('mealPlanner', JSON.stringify(mealsToSave))
     }
 
     // Reset form
@@ -212,6 +205,11 @@ export default function PlannerPage() {
   }
 
   const removeMeal = async (dayIndex: number, mealId: string) => {
+    // Prevent removing meals if not authenticated
+    if (!session?.user) {
+      return
+    }
+
     // Optimistically remove from UI
     setMeals((prev) =>
       prev.map((dayMeals, index) => {
@@ -225,8 +223,8 @@ export default function PlannerPage() {
       })
     )
 
-    // Delete from API or localStorage
-    if (session?.user) {
+    // Delete from API
+    try {
       try {
         await fetch(`/api/meals/update?mealId=${mealId}`, {
           method: 'DELETE',
@@ -254,6 +252,11 @@ export default function PlannerPage() {
   }
 
   const toggleMealCompleted = async (mealId: string, currentCompleted: boolean) => {
+    // Prevent toggling if not authenticated
+    if (!session?.user) {
+      return
+    }
+
     const newCompleted = !currentCompleted
     
     // Optimistically update UI in calendar
@@ -330,6 +333,46 @@ export default function PlannerPage() {
   const goToToday = () => {
     const today = startOfWeek(new Date(), { weekStartsOn: 1 })
     setSelectedWeek(today)
+  }
+
+  // Check authentication and show login prompt for unauthenticated users
+  if (status === 'loading') {
+    return (
+      <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <Calendar className="w-12 h-12 text-orange-500 mx-auto mb-4 animate-pulse" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated') {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 text-center">
+          <Lock className="w-16 h-16 text-orange-500 mx-auto mb-6" />
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Sign In Required</h1>
+          <p className="text-gray-600 mb-8 text-lg">
+            Please sign in to access the Meal Planner and save your meal plans.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/login"
+              className="bg-orange-500 text-white px-8 py-3 rounded-lg hover:bg-orange-600 transition-colors font-semibold text-center touch-manipulation min-h-[44px] flex items-center justify-center"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/"
+              className="border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-center touch-manipulation min-h-[44px] flex items-center justify-center"
+            >
+              Go to Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
