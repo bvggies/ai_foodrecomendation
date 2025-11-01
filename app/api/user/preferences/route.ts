@@ -27,7 +27,7 @@ export async function GET() {
           allergies: [],
           health_goals: [],
           favorite_cuisines: [],
-          ai_provider: 'gemini',
+          ai_provider: 'groq',
           notes: '',
         },
       })
