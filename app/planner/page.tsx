@@ -441,93 +441,95 @@ export default function PlannerPage() {
       )}
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-2 md:gap-4 overflow-x-auto pb-2">
-        {meals.map((dayMeals, dayIndex) => (
-          <div
-            key={dayIndex}
-            className="bg-white rounded-xl shadow-md border border-gray-100 p-2 md:p-4 min-h-[300px] md:min-h-[400px]"
-          >
-            <div className="mb-4">
-              <div className="text-sm text-gray-500 mb-1">
-                {format(dayMeals.date, 'EEE')}
-              </div>
-              <div
-                className={`text-xl font-semibold ${
-                  isSameDay(dayMeals.date, new Date())
-                    ? 'text-orange-500'
-                    : 'text-gray-800'
-                }`}
-              >
-                {format(dayMeals.date, 'd')}
-              </div>
-            </div>
-
-            <button
-              onClick={() => openAddModal(dayMeals.date)}
-              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 text-gray-500 active:border-orange-500 active:text-orange-500 transition-colors mb-3 md:mb-4 flex items-center justify-center gap-2 touch-manipulation min-h-[44px] text-sm md:text-base"
+      <div className="overflow-x-auto pb-2 -mx-2 md:mx-0 px-2 md:px-0">
+        <div className="grid grid-cols-7 gap-1.5 md:gap-4 min-w-[700px] md:min-w-0">
+          {meals.map((dayMeals, dayIndex) => (
+            <div
+              key={dayIndex}
+              className="bg-white rounded-lg md:rounded-xl shadow-md border border-gray-100 p-1.5 md:p-4 min-h-[280px] md:min-h-[400px] flex flex-col"
             >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Add Meal</span>
-              <span className="sm:hidden">Add</span>
-            </button>
+              <div className="mb-2 md:mb-4">
+                <div className="text-[10px] md:text-sm text-gray-500 mb-0.5 md:mb-1">
+                  {format(dayMeals.date, 'EEE')}
+                </div>
+                <div
+                  className={`text-base md:text-xl font-semibold ${
+                    isSameDay(dayMeals.date, new Date())
+                      ? 'text-orange-500'
+                      : 'text-gray-800'
+                  }`}
+                >
+                  {format(dayMeals.date, 'd')}
+                </div>
+              </div>
 
-            <div className="space-y-2">
-              {dayMeals.meals.map((meal) => {
-                const mealType = mealTypes.find((mt) => mt.value === meal.type)
-                const isCompleted = meal.completed || false
-                return (
-                  <div
-                    key={meal.id}
-                    className={`rounded-lg p-3 border-2 ${
-                      isCompleted
-                        ? 'bg-green-50 border-green-200'
-                        : 'bg-orange-50 border-orange-200'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-1">
-                      <div className="flex items-center gap-2 flex-1">
+              <button
+                onClick={() => openAddModal(dayMeals.date)}
+                className="w-full border-2 border-dashed border-gray-300 rounded-md md:rounded-lg p-1.5 md:p-3 text-gray-500 active:border-orange-500 active:text-orange-500 transition-colors mb-2 md:mb-4 flex items-center justify-center gap-1 md:gap-2 touch-manipulation min-h-[36px] md:min-h-[44px] text-xs md:text-sm lg:text-base flex-shrink-0"
+              >
+                <Plus className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden md:inline">Add Meal</span>
+                <span className="md:hidden">Add</span>
+              </button>
+
+              <div className="space-y-1 md:space-y-2 flex-1 overflow-y-auto min-h-0">
+                {dayMeals.meals.map((meal) => {
+                  const mealType = mealTypes.find((mt) => mt.value === meal.type)
+                  const isCompleted = meal.completed || false
+                  return (
+                    <div
+                      key={meal.id}
+                      className={`rounded-md md:rounded-lg p-1.5 md:p-3 border-2 flex-shrink-0 ${
+                        isCompleted
+                          ? 'bg-green-50 border-green-200'
+                          : 'bg-orange-50 border-orange-200'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-1">
+                        <div className="flex items-center gap-1 md:gap-2 flex-1 min-w-0">
+                          <button
+                            onClick={() => toggleMealCompleted(meal.id, isCompleted)}
+                            className={`transition-colors flex-shrink-0 touch-manipulation ${
+                              isCompleted
+                                ? 'text-green-600 active:text-green-700'
+                                : 'text-gray-400 active:text-orange-500'
+                            }`}
+                            title={isCompleted ? 'Mark as incomplete' : 'Mark as completed'}
+                          >
+                            {isCompleted ? (
+                              <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4" />
+                            ) : (
+                              <Circle className="w-3 h-3 md:w-4 md:h-4" />
+                            )}
+                          </button>
+                          <span className="text-sm md:text-base flex-shrink-0">{mealType?.emoji}</span>
+                          <span className={`font-semibold text-[10px] md:text-xs lg:text-sm flex-1 truncate ${
+                            isCompleted ? 'line-through text-gray-500' : ''
+                          }`}>
+                            {meal.name}
+                          </span>
+                        </div>
                         <button
-                          onClick={() => toggleMealCompleted(meal.id, isCompleted)}
-                          className={`transition-colors ${
-                            isCompleted
-                              ? 'text-green-600 hover:text-green-700'
-                              : 'text-gray-400 hover:text-orange-500'
-                          }`}
-                          title={isCompleted ? 'Mark as incomplete' : 'Mark as completed'}
+                          onClick={() => removeMeal(dayIndex, meal.id)}
+                          className="text-red-500 active:text-red-700 ml-1 flex-shrink-0 touch-manipulation"
+                          title="Delete meal"
                         >
-                          {isCompleted ? (
-                            <CheckCircle2 className="w-4 h-4" />
-                          ) : (
-                            <Circle className="w-4 h-4" />
-                          )}
+                          <X className="w-3 h-3 md:w-4 md:h-4" />
                         </button>
-                        <span>{mealType?.emoji}</span>
-                        <span className={`font-semibold text-sm flex-1 ${
-                          isCompleted ? 'line-through text-gray-500' : ''
-                        }`}>
-                          {meal.name}
-                        </span>
                       </div>
-                      <button
-                        onClick={() => removeMeal(dayIndex, meal.id)}
-                        className="text-red-500 hover:text-red-700 ml-2"
-                        title="Delete meal"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                      {meal.time && (
+                        <div className="flex items-center gap-1 text-[9px] md:text-xs text-gray-600 mt-0.5 md:mt-1">
+                          <Clock className="w-2.5 h-2.5 md:w-3 md:h-3 flex-shrink-0" />
+                          <span className="truncate">{meal.time}</span>
+                        </div>
+                      )}
                     </div>
-                    {meal.time && (
-                      <div className="flex items-center gap-1 text-xs text-gray-600 mt-1">
-                        <Clock className="w-3 h-3" />
-                        {meal.time}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Statistics Section */}
