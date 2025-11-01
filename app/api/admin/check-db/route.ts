@@ -28,10 +28,10 @@ export async function GET() {
       success: true,
       database: {
         connected: true,
-        usersTableExists: tablesCheck.rows.some(t => t.table_name === 'users'),
+        usersTableExists: tablesCheck.rows.some((t: { table_name: string }) => t.table_name === 'users'),
         totalUsers: parseInt(userCount.rows[0].count),
         totalAdmins: parseInt(adminCount.rows[0].count),
-        existingTables: tablesCheck.rows.map(t => t.table_name),
+        existingTables: tablesCheck.rows.map((t: { table_name: string }) => t.table_name),
       },
       message: parseInt(adminCount.rows[0].count) > 0 
         ? `Database connected. ${userCount.rows[0].count} users found, ${adminCount.rows[0].count} admins.`
