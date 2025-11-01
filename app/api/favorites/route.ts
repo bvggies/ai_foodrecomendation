@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { getDb } from '@/lib/db'
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions)
+    const userId = session?.user?.id || null
+
+    if (!userId) {
+      return NextResponse.json({ favorites: [] })
+    }
+
     const db = await getDb()
     const result = await db.query(
       'SELECT r.* FROM recipes r INNER JOIN favorites f ON r.id = f.recipe_id WHERE f.user_id = $1 ORDER BY f.created_at DESC',
-      ['default']
+      [userId]
     )
     return NextResponse.json({ favorites: result.rows })
   } catch (error: any) {
@@ -17,6 +26,13 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    const userId = session?.user?.id
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { recipe } = await req.json()
     const db = await getDb()
 
@@ -45,7 +61,7 @@ export async function POST(req: NextRequest) {
     // Add to favorites
     await db.query(
       'INSERT INTO favorites (recipe_id, user_id) VALUES ($1, $2) ON CONFLICT (recipe_id, user_id) DO NOTHING',
-      [recipe.id, 'default']
+      [recipe.id, userId]
     )
 
     return NextResponse.json({ success: true })
@@ -57,6 +73,13 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    const userId = session?.user?.id
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(req.url)
     const recipeId = searchParams.get('recipeId')
     
@@ -65,7 +88,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     const db = await getDb()
-    await db.query('DELETE FROM favorites WHERE recipe_id = $1 AND user_id = $2', [recipeId, 'default'])
+    await db.query('DELETE FROM favorites WHERE recipe_id = $1 AND user_id = $2', [recipeId, userId])
     
     return NextResponse.json({ success: true })
   } catch (error: any) {

@@ -45,6 +45,7 @@ export default function RecommendationsPage() {
 
   const cuisines = [
     { value: '', label: 'Any' },
+    { value: 'ghanaian', label: 'Ghanaian' },
     { value: 'italian', label: 'Italian' },
     { value: 'asian', label: 'Asian' },
     { value: 'mexican', label: 'Mexican' },

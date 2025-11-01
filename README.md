@@ -1,10 +1,10 @@
-# AI Food Assistant & Recipe Web App 🍳
+# SmartBite – AI helping you pick the right bite 🍳
 
-An AI-powered food recommendation and recipe web application built with Next.js, TypeScript, and OpenAI. Discover meals, plan diets, and cook efficiently with personalized AI-powered recommendations.
+SmartBite is an AI-powered food recommendation and recipe web application built with Next.js, TypeScript, and OpenAI. Discover meals, plan diets, and cook efficiently with personalized AI-powered recommendations, with special expertise in Ghanaian cuisine.
 
 ## ✨ Features
 
-- 🤖 **AI Food Assistant**: Chat with an AI to get recipe recommendations, cooking tips, and meal ideas
+- 🤖 **SmartBite AI Assistant**: Chat with AI to get recipe recommendations, cooking tips, and meal ideas with expertise in Ghanaian cuisine
 - 🍲 **Recipe Generator**: Generate step-by-step recipes from ingredients you have. Includes prep time, cook time, and nutritional info
 - 👤 **Personalized Recommendations**: Get recipe suggestions based on your diet preferences, health goals, and cuisine preferences
 - 🛒 **Smart Grocery List**: Create and manage shopping lists with categories. Mark items as bought and track your progress

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { Calendar, Clock, Plus, X } from 'lucide-react'
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns'
 
@@ -17,6 +18,7 @@ interface DayMeals {
 }
 
 export default function PlannerPage() {
+  const { data: session } = useSession()
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 })
   const [selectedWeek, setSelectedWeek] = useState(weekStart)
   const [meals, setMeals] = useState<DayMeals[]>(
@@ -26,30 +28,90 @@ export default function PlannerPage() {
     }))
   )
 
-  // Load meals from localStorage
+  // Load meals from API or localStorage
   useEffect(() => {
-    const savedMeals = localStorage.getItem('mealPlanner')
-    if (savedMeals) {
-      try {
-        const parsed = JSON.parse(savedMeals)
-        // Convert date strings back to Date objects
-        const mealsWithDates = parsed.map((day: any) => ({
-          ...day,
-          date: new Date(day.date),
-        }))
-        setMeals(mealsWithDates)
-      } catch (e) {
-        console.error('Error loading meal planner:', e)
+    const loadMeals = async () => {
+      if (session?.user) {
+        // Load from API
+        try {
+          const startDate = format(addDays(selectedWeek, 0), 'yyyy-MM-dd')
+          const endDate = format(addDays(selectedWeek, 6), 'yyyy-MM-dd')
+          const response = await fetch(`/api/meals?startDate=${startDate}&endDate=${endDate}`)
+          const data = await response.json()
+          if (data.meals) {
+            // Group meals by date
+            const mealsByDate: { [key: string]: Meal[] } = {}
+            data.meals.forEach((m: any) => {
+              const dateStr = m.date
+              if (!mealsByDate[dateStr]) {
+                mealsByDate[dateStr] = []
+              }
+              mealsByDate[dateStr].push({
+                id: m.id,
+                name: m.name,
+                type: m.type as Meal['type'],
+                time: m.time,
+              })
+            })
+
+            const weekMeals = Array.from({ length: 7 }, (_, i) => {
+              const dayDate = addDays(selectedWeek, i)
+              const dateStr = format(dayDate, 'yyyy-MM-dd')
+              return {
+                date: dayDate,
+                meals: mealsByDate[dateStr] || [],
+              }
+            })
+            setMeals(weekMeals)
+          }
+        } catch (error) {
+          console.error('Error loading meals:', error)
+        }
+      } else {
+        // Load from localStorage
+        const savedMeals = localStorage.getItem('mealPlanner')
+        if (savedMeals) {
+          try {
+            const parsed = JSON.parse(savedMeals)
+            // Convert date strings back to Date objects
+            const mealsWithDates = parsed.map((day: any) => ({
+              ...day,
+              date: new Date(day.date),
+            }))
+            setMeals(mealsWithDates)
+          } catch (e) {
+            console.error('Error loading meal planner:', e)
+          }
+        }
       }
     }
-  }, [])
 
-  // Save meals to localStorage whenever they change
+    loadMeals()
+  }, [session, selectedWeek])
+
+  // Save meals to API or localStorage whenever they change
   useEffect(() => {
     if (meals.length > 0) {
-      localStorage.setItem('mealPlanner', JSON.stringify(meals))
+      if (session?.user) {
+        // Save to API
+        const saveToAPI = async () => {
+          try {
+            await fetch('/api/meals', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ meals }),
+            })
+          } catch (error) {
+            console.error('Error saving meals:', error)
+          }
+        }
+        saveToAPI()
+      } else {
+        // Save to localStorage
+        localStorage.setItem('mealPlanner', JSON.stringify(meals))
+      }
     }
-  }, [meals])
+  }, [meals, session])
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [newMeal, setNewMeal] = useState({ name: '', type: 'lunch' as Meal['type'], time: '' })

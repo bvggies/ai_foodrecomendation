@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { getDb } from '@/lib/db'
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    const userId = session?.user?.id || null
+
+    if (!userId) {
+      return NextResponse.json({ meals: [] })
+    }
+
     const { searchParams } = new URL(req.url)
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
@@ -14,7 +23,7 @@ export async function GET(req: NextRequest) {
     const db = await getDb()
     const result = await db.query(
       'SELECT * FROM meals WHERE user_id = $1 AND date >= $2 AND date <= $3 ORDER BY date, time',
-      ['default', startDate, endDate]
+      [userId, startDate, endDate]
     )
     return NextResponse.json({ meals: result.rows })
   } catch (error: any) {
@@ -25,6 +34,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    const userId = session?.user?.id
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { meals } = await req.json()
     const db = await getDb()
 
@@ -36,7 +52,7 @@ export async function POST(req: NextRequest) {
       
       await db.query(
         'DELETE FROM meals WHERE user_id = $1 AND date >= $2 AND date <= $3',
-        ['default', minDate, maxDate]
+        [userId, minDate, maxDate]
       )
     }
 
@@ -51,7 +67,7 @@ export async function POST(req: NextRequest) {
             mealItem.name,
             mealItem.type,
             mealItem.time || null,
-            'default'
+            userId
           ]
         )
       }

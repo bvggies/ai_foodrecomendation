@@ -12,7 +12,7 @@ export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hello! I'm your AI Food Assistant. I can help you with:\n\n• Recipe suggestions based on ingredients\n• Meal planning and diet advice\n• Cooking tips and techniques\n• Nutritional information\n\nWhat would you like to cook today?",
+      content: "Hello! I'm SmartBite AI, your personal food assistant. I can help you with:\n\n• Recipe suggestions based on ingredients\n• Meal planning and diet advice\n• Cooking tips and techniques\n• Nutritional information\n• Ghanaian cuisine expertise\n\nWhat would you like to cook today?",
     },
   ])
   const [input, setInput] = useState('')
@@ -71,8 +71,8 @@ export default function AssistantPage() {
           <div className="flex items-center gap-3">
             <ChefHat className="w-8 h-8" />
             <div>
-              <h1 className="text-2xl font-bold">AI Food Assistant</h1>
-              <p className="text-orange-100 text-sm">Ask me anything about food, recipes, or meal planning</p>
+              <h1 className="text-2xl font-bold">SmartBite AI</h1>
+              <p className="text-orange-100 text-sm">AI helping you pick the right bite</p>
             </div>
           </div>
         </div>

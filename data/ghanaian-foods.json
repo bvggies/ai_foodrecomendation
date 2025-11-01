@@ -1,0 +1,793 @@
+{
+  "foods": [
+    {
+      "name": "Jollof Rice",
+      "description": "A popular West African one-pot rice dish cooked with tomatoes, onions, peppers, and spices. Ghanaian Jollof is known for its slightly smoky flavor and rich taste.",
+      "ingredients": [
+        "rice",
+        "tomatoes",
+        "onions",
+        "pepper",
+        "ginger",
+        "garlic",
+        "oil",
+        "stock",
+        "spices"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 15,
+      "cookTime": 45,
+      "calories": 350,
+      "image": "🍛",
+      "dietType": "vegetarian-optional",
+      "tags": [
+        "rice",
+        "main-course",
+        "traditional"
+      ]
+    },
+    {
+      "name": "Waakye",
+      "description": "A nutritious dish made from rice and beans cooked together, typically served with stew, spaghetti, gari (cassava flakes), and protein.",
+      "ingredients": [
+        "rice",
+        "black-eyed beans",
+        "waakye leaves",
+        "onions",
+        "salt"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 30,
+      "cookTime": 60,
+      "calories": 280,
+      "image": "🍚",
+      "dietType": "vegetarian",
+      "tags": [
+        "rice",
+        "beans",
+        "traditional",
+        "breakfast"
+      ]
+    },
+    {
+      "name": "Banku",
+      "description": "A fermented corn and cassava dough dish, often paired with grilled tilapia, okro stew, or shito (black pepper sauce).",
+      "ingredients": [
+        "corn dough",
+        "cassava dough",
+        "salt",
+        "water"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 10,
+      "cookTime": 30,
+      "calories": 200,
+      "image": "🥣",
+      "dietType": "vegetarian",
+      "tags": [
+        "fermented",
+        "traditional",
+        "main-course"
+      ]
+    },
+    {
+      "name": "Tuo Zaafi",
+      "description": "A northern Ghanaian staple made from corn flour, served with okro soup, ayoyo leaves, or groundnut soup.",
+      "ingredients": [
+        "corn flour",
+        "water",
+        "salt"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 5,
+      "cookTime": 20,
+      "calories": 180,
+      "image": "🥘",
+      "dietType": "vegetarian",
+      "tags": [
+        "traditional",
+        "northern",
+        "staple"
+      ]
+    },
+    {
+      "name": "Kelewele",
+      "description": "Spicy fried plantains seasoned with ginger, pepper, and spices. A popular snack or side dish.",
+      "ingredients": [
+        "ripe plantains",
+        "ginger",
+        "pepper",
+        "salt",
+        "onions",
+        "oil"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 15,
+      "cookTime": 15,
+      "calories": 250,
+      "image": "🍌",
+      "dietType": "vegetarian",
+      "tags": [
+        "snack",
+        "side-dish",
+        "plantain"
+      ]
+    },
+    {
+      "name": "Red Red",
+      "description": "Black-eyed peas stew cooked with palm oil, tomatoes, and spices, served with fried plantains.",
+      "ingredients": [
+        "black-eyed peas",
+        "palm oil",
+        "onions",
+        "tomatoes",
+        "pepper",
+        "plantains"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 20,
+      "cookTime": 45,
+      "calories": 320,
+      "image": "🍲",
+      "dietType": "vegetarian",
+      "tags": [
+        "beans",
+        "traditional",
+        "stew"
+      ]
+    },
+    {
+      "name": "Fufu",
+      "description": "A smooth, dough-like side dish made from pounded cassava and plantains or yam, served with soup.",
+      "ingredients": [
+        "cassava",
+        "plantains",
+        "salt"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 20,
+      "cookTime": 40,
+      "calories": 220,
+      "image": "🥄",
+      "dietType": "vegetarian",
+      "tags": [
+        "traditional",
+        "pounded",
+        "staple"
+      ]
+    },
+    {
+      "name": "Kontomire Stew",
+      "description": "A spinach-based stew cooked with palm oil, eggs, and spices, often served with boiled yam, plantain, or rice.",
+      "ingredients": [
+        "cocoyam leaves",
+        "palm oil",
+        "eggs",
+        "onions",
+        "pepper",
+        "tomatoes",
+        "fish"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 30,
+      "cookTime": 30,
+      "calories": 280,
+      "image": "🥬",
+      "dietType": "vegetarian-optional",
+      "tags": [
+        "stew",
+        "vegetables",
+        "traditional"
+      ]
+    },
+    {
+      "name": "Groundnut Soup",
+      "description": "A rich, nutty soup made from groundnuts (peanuts), often cooked with meat or fish, served with rice balls or fufu.",
+      "ingredients": [
+        "groundnuts",
+        "tomatoes",
+        "onions",
+        "pepper",
+        "meat",
+        "fish",
+        "palm oil"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 25,
+      "cookTime": 60,
+      "calories": 380,
+      "image": "🥜",
+      "dietType": "non-vegetarian",
+      "tags": [
+        "soup",
+        "traditional",
+        "nutty"
+      ]
+    },
+    {
+      "name": "Light Soup",
+      "description": "A light, tomato-based soup with fish or meat, seasoned with spices, served with fufu or rice balls.",
+      "ingredients": [
+        "tomatoes",
+        "onions",
+        "pepper",
+        "fish",
+        "meat",
+        "ginger",
+        "garlic",
+        "salt"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 20,
+      "cookTime": 45,
+      "calories": 250,
+      "image": "🍲",
+      "dietType": "non-vegetarian",
+      "tags": [
+        "soup",
+        "light",
+        "traditional"
+      ]
+    },
+    {
+      "name": "Palava Sauce",
+      "description": "A leafy vegetable sauce made from cocoyam leaves, palm oil, and protein, served with rice or fufu.",
+      "ingredients": [
+        "cocoyam leaves",
+        "palm oil",
+        "onions",
+        "tomatoes",
+        "fish",
+        "pepper"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 25,
+      "cookTime": 35,
+      "calories": 290,
+      "image": "🥗",
+      "dietType": "vegetarian-optional",
+      "tags": [
+        "sauce",
+        "vegetables",
+        "traditional"
+      ]
+    },
+    {
+      "name": "Ampesi",
+      "description": "Boiled yam, plantain, or cocoyam served with kontomire stew or palava sauce.",
+      "ingredients": [
+        "yam",
+        "plantain",
+        "cocoyam",
+        "salt",
+        "water"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 10,
+      "cookTime": 30,
+      "calories": 200,
+      "image": "🍠",
+      "dietType": "vegetarian",
+      "tags": [
+        "boiled",
+        "staple",
+        "traditional"
+      ]
+    },
+    {
+      "name": "Koose",
+      "description": "Deep-fried bean fritters made from black-eyed peas, a popular breakfast or snack.",
+      "ingredients": [
+        "black-eyed peas",
+        "onions",
+        "pepper",
+        "salt",
+        "oil"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 60,
+      "cookTime": 20,
+      "calories": 180,
+      "image": "🍘",
+      "dietType": "vegetarian",
+      "tags": [
+        "fritters",
+        "snack",
+        "breakfast"
+      ]
+    },
+    {
+      "name": "Bofrot",
+      "description": "Sweet, fluffy doughnuts popular as a snack or breakfast item in Ghana.",
+      "ingredients": [
+        "flour",
+        "yeast",
+        "sugar",
+        "milk",
+        "eggs",
+        "oil"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 90,
+      "cookTime": 15,
+      "calories": 220,
+      "image": "🍩",
+      "dietType": "vegetarian",
+      "tags": [
+        "snack",
+        "sweet",
+        "doughnut"
+      ]
+    },
+    {
+      "name": "Tatale",
+      "description": "Plantain fritters made from mashed ripe plantains mixed with flour and spices, then fried.",
+      "ingredients": [
+        "ripe plantains",
+        "flour",
+        "onions",
+        "pepper",
+        "ginger",
+        "salt",
+        "oil"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 20,
+      "cookTime": 20,
+      "calories": 240,
+      "image": "🍌",
+      "dietType": "vegetarian",
+      "tags": [
+        "fritters",
+        "plantain",
+        "snack"
+      ]
+    },
+    {
+      "name": "Shito",
+      "description": "A spicy black pepper sauce made from dried fish, prawns, ginger, and peppers, used as a condiment.",
+      "ingredients": [
+        "dried fish",
+        "prawns",
+        "ginger",
+        "pepper",
+        "onions",
+        "oil",
+        "tomatoes"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 30,
+      "cookTime": 60,
+      "calories": 150,
+      "image": "🌶️",
+      "dietType": "non-vegetarian",
+      "tags": [
+        "sauce",
+        "condiment",
+        "spicy"
+      ]
+    },
+    {
+      "name": "Okro Stew",
+      "description": "A slimy, nutritious stew made from okra, tomatoes, and fish or meat, served with banku or rice.",
+      "ingredients": [
+        "okra",
+        "tomatoes",
+        "onions",
+        "fish",
+        "palm oil",
+        "pepper"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 25,
+      "cookTime": 40,
+      "calories": 270,
+      "image": "🥘",
+      "dietType": "non-vegetarian",
+      "tags": [
+        "stew",
+        "okra",
+        "traditional"
+      ]
+    },
+    {
+      "name": "Yam and Eggs",
+      "description": "Boiled yam served with scrambled or fried eggs, a simple and nutritious meal.",
+      "ingredients": [
+        "yam",
+        "eggs",
+        "onions",
+        "pepper",
+        "oil",
+        "salt"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 10,
+      "cookTime": 25,
+      "calories": 320,
+      "image": "🍳",
+      "dietType": "vegetarian",
+      "tags": [
+        "breakfast",
+        "simple",
+        "protein"
+      ]
+    },
+    {
+      "name": "Gari Foto",
+      "description": "Cassava flakes (gari) soaked and mixed with tomatoes, onions, and eggs.",
+      "ingredients": [
+        "gari",
+        "tomatoes",
+        "onions",
+        "eggs",
+        "oil",
+        "pepper"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 10,
+      "cookTime": 15,
+      "calories": 280,
+      "image": "🥣",
+      "dietType": "vegetarian",
+      "tags": [
+        "breakfast",
+        "gari",
+        "quick"
+      ]
+    },
+    {
+      "name": "Acheke",
+      "description": "Grated cassava fried and mixed with vegetables, meat, or fish, a popular street food.",
+      "ingredients": [
+        "cassava",
+        "cabbage",
+        "carrots",
+        "onions",
+        "meat",
+        "oil",
+        "spices"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 30,
+      "cookTime": 20,
+      "calories": 300,
+      "image": "🍽️",
+      "dietType": "vegetarian-optional",
+      "tags": [
+        "street-food",
+        "cassava",
+        "fried"
+      ]
+    },
+    {
+      "name": "Chichinga",
+      "description": "Grilled kebab made from marinated meat (beef, chicken, or goat) on skewers, a popular street food.",
+      "ingredients": [
+        "beef",
+        "chicken",
+        "onions",
+        "pepper",
+        "ginger",
+        "garlic",
+        "spices"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 60,
+      "cookTime": 20,
+      "calories": 280,
+      "image": "🍢",
+      "dietType": "non-vegetarian",
+      "tags": [
+        "grilled",
+        "street-food",
+        "kebab"
+      ]
+    },
+    {
+      "name": "Nkatie Cake",
+      "description": "Peanut brittle made from roasted peanuts and sugar, a sweet snack.",
+      "ingredients": [
+        "peanuts",
+        "sugar",
+        "water"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 10,
+      "cookTime": 20,
+      "calories": 350,
+      "image": "🥜",
+      "dietType": "vegetarian",
+      "tags": [
+        "snack",
+        "sweet",
+        "peanuts"
+      ]
+    },
+    {
+      "name": "Benne Cake",
+      "description": "Sesame seed brittle, similar to nkatie cake but made with sesame seeds.",
+      "ingredients": [
+        "sesame seeds",
+        "sugar",
+        "water"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 10,
+      "cookTime": 20,
+      "calories": 340,
+      "image": "🍬",
+      "dietType": "vegetarian",
+      "tags": [
+        "snack",
+        "sweet",
+        "sesame"
+      ]
+    },
+    {
+      "name": "Fried Rice",
+      "description": "Ghanaian-style fried rice with vegetables, eggs, and meat, seasoned with curry powder.",
+      "ingredients": [
+        "rice",
+        "vegetables",
+        "eggs",
+        "meat",
+        "curry powder",
+        "oil",
+        "onions"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 20,
+      "cookTime": 30,
+      "calories": 380,
+      "image": "🍛",
+      "dietType": "non-vegetarian",
+      "tags": [
+        "rice",
+        "fried",
+        "main-course"
+      ]
+    },
+    {
+      "name": "Goat Light Soup",
+      "description": "A flavorful soup made from goat meat, tomatoes, and spices, served with fufu or rice balls.",
+      "ingredients": [
+        "goat meat",
+        "tomatoes",
+        "onions",
+        "pepper",
+        "ginger",
+        "garlic"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 30,
+      "cookTime": 90,
+      "calories": 320,
+      "image": "🍲",
+      "dietType": "non-vegetarian",
+      "tags": [
+        "soup",
+        "goat",
+        "traditional"
+      ]
+    },
+    {
+      "name": "Ayoyo Soup",
+      "description": "A northern Ghanaian soup made from jute leaves, served with tuo zaafi.",
+      "ingredients": [
+        "jute leaves",
+        "peanuts",
+        "tomatoes",
+        "onions",
+        "meat",
+        "pepper"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 25,
+      "cookTime": 45,
+      "calories": 260,
+      "image": "🥬",
+      "dietType": "vegetarian-optional",
+      "tags": [
+        "soup",
+        "northern",
+        "jute-leaves"
+      ]
+    },
+    {
+      "name": "Kenkey",
+      "description": "Fermented corn dough wrapped in plantain leaves or corn husks and steamed, served with fried fish and pepper.",
+      "ingredients": [
+        "corn dough",
+        "salt",
+        "plantain leaves"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 120,
+      "cookTime": 60,
+      "calories": 200,
+      "image": "🌽",
+      "dietType": "vegetarian",
+      "tags": [
+        "fermented",
+        "traditional",
+        "steamed"
+      ]
+    },
+    {
+      "name": "Omo Tuo",
+      "description": "Rice balls, soft and smooth, typically served with soups like groundnut soup or light soup.",
+      "ingredients": [
+        "rice",
+        "water",
+        "salt"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 5,
+      "cookTime": 30,
+      "calories": 180,
+      "image": "🍚",
+      "dietType": "vegetarian",
+      "tags": [
+        "rice",
+        "soup-side",
+        "soft"
+      ]
+    },
+    {
+      "name": "Kakro",
+      "description": "Sweet plantain fritters made from mashed ripe plantains, a popular snack.",
+      "ingredients": [
+        "ripe plantains",
+        "flour",
+        "sugar",
+        "spices",
+        "oil"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 15,
+      "cookTime": 15,
+      "calories": 230,
+      "image": "🍌",
+      "dietType": "vegetarian",
+      "tags": [
+        "fritters",
+        "sweet",
+        "snack"
+      ]
+    },
+    {
+      "name": "Tom Brown",
+      "description": "A porridge made from roasted corn, groundnuts, and sometimes millet, often served as breakfast.",
+      "ingredients": [
+        "roasted corn",
+        "groundnuts",
+        "millet",
+        "sugar",
+        "milk"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 30,
+      "cookTime": 20,
+      "calories": 280,
+      "image": "🥣",
+      "dietType": "vegetarian",
+      "tags": [
+        "porridge",
+        "breakfast",
+        "nutritious"
+      ]
+    },
+    {
+      "name": "Hausa Koko",
+      "description": "A spicy millet porridge, a popular breakfast drink in Ghana.",
+      "ingredients": [
+        "millet",
+        "ginger",
+        "pepper",
+        "sugar",
+        "salt"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 20,
+      "cookTime": 30,
+      "calories": 150,
+      "image": "🥤",
+      "dietType": "vegetarian",
+      "tags": [
+        "porridge",
+        "breakfast",
+        "spicy"
+      ]
+    },
+    {
+      "name": "Palm Nut Soup",
+      "description": "A rich soup made from palm nuts, often cooked with fish or meat, served with fufu or rice balls.",
+      "ingredients": [
+        "palm nuts",
+        "fish",
+        "meat",
+        "onions",
+        "pepper",
+        "tomatoes"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 45,
+      "cookTime": 75,
+      "calories": 350,
+      "image": "🍲",
+      "dietType": "non-vegetarian",
+      "tags": [
+        "soup",
+        "palm-nuts",
+        "rich"
+      ]
+    },
+    {
+      "name": "Beans and Plantain",
+      "description": "Stewed beans served with boiled or fried plantains, a simple and nutritious meal.",
+      "ingredients": [
+        "beans",
+        "plantains",
+        "onions",
+        "tomatoes",
+        "oil",
+        "spices"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 20,
+      "cookTime": 50,
+      "calories": 340,
+      "image": "🍽️",
+      "dietType": "vegetarian",
+      "tags": [
+        "beans",
+        "plantain",
+        "simple"
+      ]
+    },
+    {
+      "name": "Abenkwan",
+      "description": "A palm nut soup from the Akan region, rich and flavorful, served with fufu.",
+      "ingredients": [
+        "palm nuts",
+        "snail",
+        "meat",
+        "onions",
+        "pepper",
+        "spices"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 40,
+      "cookTime": 80,
+      "calories": 360,
+      "image": "🍲",
+      "dietType": "non-vegetarian",
+      "tags": [
+        "soup",
+        "palm-nuts",
+        "akan"
+      ]
+    },
+    {
+      "name": "Tuwo Shinkafa",
+      "description": "A northern Ghanaian rice-based meal, soft and smooth, served with soups.",
+      "ingredients": [
+        "rice",
+        "water",
+        "salt"
+      ],
+      "cuisine": "Ghanaian",
+      "prepTime": 5,
+      "cookTime": 40,
+      "calories": 190,
+      "image": "🍚",
+      "dietType": "vegetarian",
+      "tags": [
+        "rice",
+        "northern",
+        "staple"
+      ]
+    }
+  ]
+}

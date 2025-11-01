@@ -45,6 +45,29 @@ export async function initDb() {
   const db = await getDb()
 
   try {
+    // Users table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        role VARCHAR(20) DEFAULT 'user',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // Update existing users to have 'user' role if column doesn't exist
+    await db.query(`
+      DO $$ 
+      BEGIN
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user';
+      EXCEPTION
+        WHEN duplicate_column THEN NULL;
+      END $$;
+    `)
+
     // Recipes table
     await db.query(`
       CREATE TABLE IF NOT EXISTS recipes (
@@ -65,12 +88,12 @@ export async function initDb() {
       )
     `)
 
-    // Favorites table (user_id can be extended for multi-user support)
+    // Favorites table
     await db.query(`
       CREATE TABLE IF NOT EXISTS favorites (
         id SERIAL PRIMARY KEY,
         recipe_id VARCHAR(255) NOT NULL,
-        user_id VARCHAR(255) DEFAULT 'default',
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(recipe_id, user_id)
       )
@@ -84,7 +107,7 @@ export async function initDb() {
         quantity TEXT,
         category VARCHAR(50) NOT NULL,
         bought BOOLEAN DEFAULT FALSE,
-        user_id VARCHAR(255) DEFAULT 'default',
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `)
@@ -97,8 +120,23 @@ export async function initDb() {
         name TEXT NOT NULL,
         type VARCHAR(20) NOT NULL,
         time VARCHAR(10),
-        user_id VARCHAR(255) DEFAULT 'default',
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // User preferences/important data table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS user_preferences (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+        diet_preferences TEXT[],
+        allergies TEXT[],
+        health_goals TEXT[],
+        favorite_cuisines TEXT[],
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `)
 
@@ -111,6 +149,9 @@ export async function initDb() {
     `)
     await db.query(`
       CREATE INDEX IF NOT EXISTS idx_meals_user_date ON meals(user_id, date)
+    `)
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)
     `)
 
     console.log('Database initialized successfully')

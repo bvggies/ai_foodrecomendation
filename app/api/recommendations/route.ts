@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { getGhanaianFoods, getFoodKnowledgeBase } from '@/lib/food-knowledge'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || '',
@@ -16,6 +17,9 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const foodKnowledge = getFoodKnowledgeBase()
+    const ghanaianFoods = getGhanaianFoods()
+    
     let prompt = 'Generate 6 personalized recipe recommendations based on the following preferences:\n\n'
 
     if (dietType) {
@@ -29,6 +33,12 @@ export async function POST(req: NextRequest) {
     }
     if (maxCalories) {
       prompt += `- Maximum Calories: ${maxCalories}\n`
+    }
+    
+    // Include Ghanaian food knowledge if cuisine is Ghanaian or not specified
+    if (cuisine?.toLowerCase().includes('ghana') || !cuisine || cuisine === '') {
+      prompt += `\n\nYou have extensive knowledge of Ghanaian cuisine. Include at least 2-3 authentic Ghanaian dishes in your recommendations:\n${foodKnowledge}\n\n`
+      prompt += `Prioritize authentic Ghanaian recipes when they match the user's preferences.`
     }
 
     prompt += `\nFor each recipe, provide:

@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { getDb } from '@/lib/db'
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions)
+    const userId = session?.user?.id || null
+
+    if (!userId) {
+      return NextResponse.json({ items: [] })
+    }
+
     const db = await getDb()
     const result = await db.query(
       'SELECT * FROM grocery_items WHERE user_id = $1 ORDER BY created_at DESC',
-      ['default']
+      [userId]
     )
     return NextResponse.json({ items: result.rows })
   } catch (error: any) {
@@ -17,17 +26,24 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    const userId = session?.user?.id
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { items } = await req.json()
     const db = await getDb()
 
     // Delete existing items
-    await db.query('DELETE FROM grocery_items WHERE user_id = $1', ['default'])
+    await db.query('DELETE FROM grocery_items WHERE user_id = $1', [userId])
 
     // Insert new items
     for (const item of items) {
       await db.query(
         'INSERT INTO grocery_items (id, name, quantity, category, bought, user_id) VALUES ($1, $2, $3, $4, $5, $6)',
-        [item.id, item.name, item.quantity || '', item.category, item.bought || false, 'default']
+        [item.id, item.name, item.quantity || '', item.category, item.bought || false, userId]
       )
     }
 

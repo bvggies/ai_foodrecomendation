@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import OpenAI from 'openai'
+import { findFoodByName, findFoodsByIngredients, getFoodKnowledgeBase } from '@/lib/food-knowledge'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || '',
@@ -24,13 +27,29 @@ export async function POST(req: NextRequest) {
     }
 
     const ingredientsList = ingredients.join(', ')
+    
+    // Check if ingredients match any Ghanaian foods
+    const matchingGhanaianFoods = findFoodsByIngredients(ingredients)
+    const foodKnowledge = getFoodKnowledgeBase()
+    
     let prompt = `Generate a detailed recipe using the following ingredients: ${ingredientsList}.`
+
+    // If cuisine is Ghanaian or ingredients match Ghanaian foods, include knowledge
+    if (cuisine === 'Ghanaian' || cuisine?.toLowerCase().includes('ghana') || matchingGhanaianFoods.length > 0) {
+      prompt += `\n\nIMPORTANT: The user wants a ${cuisine || 'Ghanaian'} recipe. You have extensive knowledge of Ghanaian cuisine.`
+      if (matchingGhanaianFoods.length > 0) {
+        prompt += `\n\nThese ingredients are commonly used in these Ghanaian dishes: ${matchingGhanaianFoods.map(f => f.name).join(', ')}.`
+        prompt += `\n\nReference your Ghanaian food knowledge base:\n${foodKnowledge}`
+        prompt += `\n\nIf possible, suggest an authentic Ghanaian dish that matches the ingredients provided.`
+      }
+      prompt += `\n\nEnsure the recipe is authentic to Ghanaian cooking methods and flavors.`
+    }
 
     if (dietType) {
       prompt += ` The recipe must be ${dietType}.`
     }
 
-    if (cuisine) {
+    if (cuisine && !cuisine.toLowerCase().includes('ghana')) {
       prompt += ` The recipe should be ${cuisine} cuisine.`
     }
 

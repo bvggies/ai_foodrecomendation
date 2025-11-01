@@ -1,14 +1,15 @@
 import Link from 'next/link'
 import { ChefHat, Sparkles, Calendar, ShoppingCart, Utensils } from 'lucide-react'
+import Logo from '@/components/Logo'
 
 export default function Home() {
   return (
     <div className="container mx-auto px-4 py-12">
       {/* Hero Section */}
       <div className="text-center mb-16">
-        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
-          AI Food Assistant
-        </h1>
+        <div className="flex justify-center mb-6">
+          <Logo size="lg" showText={true} />
+        </div>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
           Discover meals, plan diets, and cook efficiently with personalized AI-powered recommendations
         </p>
@@ -32,7 +33,7 @@ export default function Home() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
         <FeatureCard
           icon={<Sparkles className="w-8 h-8" />}
-          title="AI Food Assistant"
+          title="SmartBite AI Assistant"
           description="Chat with AI to get recipe recommendations, cooking tips, and meal ideas based on your preferences."
           link="/assistant"
         />

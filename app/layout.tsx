@@ -2,12 +2,13 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import Navigation from '@/components/Navigation'
+import { SessionProvider } from '@/components/SessionProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AI Food Assistant - Recipe & Meal Planning',
-  description: 'AI-powered food recommendations, recipe generation, and meal planning',
+  title: 'SmartBite – AI helping you pick the right bite',
+  description: 'AI-powered food recommendations, recipe generation, and meal planning. Discover meals, plan diets, and cook efficiently with personalized AI-powered recommendations.',
 }
 
 export default function RootLayout({
@@ -18,10 +19,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Navigation />
-        <main className="min-h-screen pt-16">
-          {children}
-        </main>
+        <SessionProvider>
+          <Navigation />
+          <main className="min-h-screen pt-16">
+            {children}
+          </main>
+        </SessionProvider>
       </body>
     </html>
   )

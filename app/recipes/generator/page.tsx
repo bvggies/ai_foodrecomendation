@@ -192,6 +192,7 @@ export default function RecipeGeneratorPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="">Any</option>
+              <option value="ghanaian">Ghanaian</option>
               <option value="italian">Italian</option>
               <option value="asian">Asian</option>
               <option value="mexican">Mexican</option>

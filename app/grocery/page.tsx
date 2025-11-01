@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { ShoppingCart, Plus, Check, X, Trash2 } from 'lucide-react'
 
 interface GroceryItem {
@@ -25,45 +26,80 @@ const categories = [
 export default function GroceryPage() {
   const [items, setItems] = useState<GroceryItem[]>([])
 
-  // Load items from localStorage on mount
+  const { data: session } = useSession()
+
+  // Load items from API or localStorage on mount
   useEffect(() => {
-    const savedItems = localStorage.getItem('groceryItems')
-    if (savedItems) {
-      try {
-        setItems(JSON.parse(savedItems))
-      } catch (e) {
-        console.error('Error loading grocery items:', e)
-      }
-    } else {
-      // Default items for first-time users
-      setItems([
-        { id: '1', name: 'Chicken Breast', quantity: '500g', category: 'Meat & Seafood', bought: false },
-        { id: '2', name: 'Tomatoes', quantity: '4 pieces', category: 'Produce', bought: false },
-        { id: '3', name: 'Rice', quantity: '1 kg', category: 'Pantry', bought: false },
-      ])
-    }
-
-    // Listen for storage events (when items are added from other pages)
-    const handleStorageChange = () => {
-      const savedItems = localStorage.getItem('groceryItems')
-      if (savedItems) {
+    const loadItems = async () => {
+      if (session?.user) {
+        // Load from API
         try {
-          setItems(JSON.parse(savedItems))
-        } catch (e) {
-          console.error('Error loading grocery items:', e)
+          const response = await fetch('/api/grocery')
+          const data = await response.json()
+          if (data.items) {
+            setItems(data.items)
+          }
+        } catch (error) {
+          console.error('Error loading grocery items:', error)
         }
+      } else {
+        // Load from localStorage
+        const savedItems = localStorage.getItem('groceryItems')
+        if (savedItems) {
+          try {
+            setItems(JSON.parse(savedItems))
+          } catch (e) {
+            console.error('Error loading grocery items:', e)
+          }
+        } else {
+          // Default items for first-time users
+          setItems([
+            { id: '1', name: 'Chicken Breast', quantity: '500g', category: 'Meat & Seafood', bought: false },
+            { id: '2', name: 'Tomatoes', quantity: '4 pieces', category: 'Produce', bought: false },
+            { id: '3', name: 'Rice', quantity: '1 kg', category: 'Pantry', bought: false },
+          ])
+        }
+
+        // Listen for storage events (when items are added from other pages)
+        const handleStorageChange = () => {
+          const savedItems = localStorage.getItem('groceryItems')
+          if (savedItems) {
+            try {
+              setItems(JSON.parse(savedItems))
+            } catch (e) {
+              console.error('Error loading grocery items:', e)
+            }
+          }
+        }
+
+        window.addEventListener('storage', handleStorageChange)
+        return () => window.removeEventListener('storage', handleStorageChange)
       }
     }
 
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
+    loadItems()
+  }, [session])
   const [showAddModal, setShowAddModal] = useState(false)
   const [newItem, setNewItem] = useState({ name: '', quantity: '', category: 'Other' })
 
-  const saveItems = (newItems: GroceryItem[]) => {
+  const saveItems = async (newItems: GroceryItem[]) => {
     setItems(newItems)
-    localStorage.setItem('groceryItems', JSON.stringify(newItems))
+    
+    if (session?.user) {
+      // Save to API
+      try {
+        await fetch('/api/grocery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: newItems }),
+        })
+      } catch (error) {
+        console.error('Error saving grocery items:', error)
+      }
+    } else {
+      // Save to localStorage
+      localStorage.setItem('groceryItems', JSON.stringify(newItems))
+    }
   }
 
   const addItem = () => {

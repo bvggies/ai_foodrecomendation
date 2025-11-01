@@ -86,19 +86,13 @@ function categorizeIngredient(ingredient: string): string {
   return 'Other'
 }
 
-export function useGroceryList() {
-  const addRecipeToGroceryList = (recipe: FavoriteRecipe) => {
-    const existingItems = localStorage.getItem('groceryItems')
-    let currentItems: GroceryItem[] = []
-    
-    if (existingItems) {
-      try {
-        currentItems = JSON.parse(existingItems)
-      } catch (e) {
-        console.error('Error loading grocery items:', e)
-      }
-    }
+import { useSession } from 'next-auth/react'
+import { FavoriteRecipe } from './useFavorites'
 
+export function useGroceryList() {
+  const { data: session } = useSession()
+
+  const addRecipeToGroceryList = async (recipe: FavoriteRecipe) => {
     // Extract ingredients and add them to the list
     const newItems: GroceryItem[] = recipe.ingredients.map((ingredient) => {
       // Try to extract quantity and name from ingredient string
@@ -122,21 +116,63 @@ export function useGroceryList() {
       }
     })
 
-    // Merge with existing items (avoid duplicates)
-    const mergedItems = [...currentItems]
-    newItems.forEach((newItem) => {
-      const exists = mergedItems.some(
-        (item) => item.name.toLowerCase() === newItem.name.toLowerCase()
-      )
-      if (!exists) {
-        mergedItems.push(newItem)
-      }
-    })
+    if (session?.user) {
+      // Use API
+      try {
+        // Fetch current items
+        const currentRes = await fetch('/api/grocery')
+        const currentData = await currentRes.json()
+        const currentItems = currentData.items || []
 
-    localStorage.setItem('groceryItems', JSON.stringify(mergedItems))
-    
-    // Trigger storage event so grocery page can update
-    window.dispatchEvent(new Event('storage'))
+        // Merge with new items
+        const mergedItems = [...currentItems]
+        newItems.forEach((newItem) => {
+          const exists = mergedItems.some(
+            (item: GroceryItem) => item.name.toLowerCase() === newItem.name.toLowerCase()
+          )
+          if (!exists) {
+            mergedItems.push(newItem)
+          }
+        })
+
+        // Save to API
+        await fetch('/api/grocery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: mergedItems }),
+        })
+      } catch (error) {
+        console.error('Error adding to grocery list:', error)
+      }
+    } else {
+      // Use localStorage
+      const existingItems = localStorage.getItem('groceryItems')
+      let currentItems: GroceryItem[] = []
+      
+      if (existingItems) {
+        try {
+          currentItems = JSON.parse(existingItems)
+        } catch (e) {
+          console.error('Error loading grocery items:', e)
+        }
+      }
+
+      // Merge with existing items (avoid duplicates)
+      const mergedItems = [...currentItems]
+      newItems.forEach((newItem) => {
+        const exists = mergedItems.some(
+          (item) => item.name.toLowerCase() === newItem.name.toLowerCase()
+        )
+        if (!exists) {
+          mergedItems.push(newItem)
+        }
+      })
+
+      localStorage.setItem('groceryItems', JSON.stringify(mergedItems))
+      
+      // Trigger storage event so grocery page can update
+      window.dispatchEvent(new Event('storage'))
+    }
   }
 
   return {
