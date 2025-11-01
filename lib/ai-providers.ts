@@ -258,6 +258,11 @@ export function getAvailableProviders(): AIProvider[] {
     providers.push('claude')
   }
   
+  const groqKey = process.env.GROQ_API_KEY
+  if (groqKey && groqKey.trim() !== '' && groqKey !== 'your_groq_api_key_here') {
+    providers.push('groq')
+  }
+  
   // Default to Gemini if none configured (since it's free), otherwise OpenAI
   if (providers.length === 0) {
     providers.push('gemini')
