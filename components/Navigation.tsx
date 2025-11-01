@@ -22,13 +22,13 @@ export default function Navigation() {
   ]
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+    <nav className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-[95%] max-w-6xl">
+      <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 px-4 py-3">
+        <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <Logo size="md" showText={true} />
+            <Logo size="sm" showText={false} />
           </Link>
-          <div className="flex gap-1 items-center">
+          <div className="flex gap-1 items-center flex-1 justify-center">
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
@@ -36,14 +36,15 @@ export default function Navigation() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                  className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                     isActive
-                      ? 'bg-orange-500 text-white'
-                      : 'text-gray-600 hover:bg-orange-50 hover:text-orange-500'
+                      ? 'bg-orange-500 text-white shadow-md'
+                      : 'text-gray-600 hover:bg-white/50 hover:text-orange-500'
                   }`}
+                  title={item.label}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span className="hidden sm:inline">{item.label}</span>
+                  <Icon className="w-5 h-5" />
+                  <span className="text-xs font-medium hidden md:inline">{item.label}</span>
                 </Link>
               )
             })}
@@ -51,31 +52,34 @@ export default function Navigation() {
               <>
                 <Link
                   href="/dashboard"
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                  className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                     pathname === '/dashboard'
-                      ? 'bg-orange-500 text-white'
-                      : 'text-gray-600 hover:bg-orange-50 hover:text-orange-500'
+                      ? 'bg-orange-500 text-white shadow-md'
+                      : 'text-gray-600 hover:bg-white/50 hover:text-orange-500'
                   }`}
+                  title="Dashboard"
                 >
-                  <User className="w-4 h-4" />
-                  <span className="hidden sm:inline">Dashboard</span>
+                  <User className="w-5 h-5" />
+                  <span className="text-xs font-medium hidden md:inline">Dashboard</span>
                 </Link>
                 <AdminLink />
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors"
+                  className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl text-gray-600 hover:bg-white/50 hover:text-orange-500 transition-all"
+                  title="Sign Out"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Sign Out</span>
+                  <LogOut className="w-5 h-5" />
+                  <span className="text-xs font-medium hidden md:inline">Sign Out</span>
                 </button>
               </>
             ) : (
               <Link
                 href="/login"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors"
+                className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-md"
+                title="Sign In"
               >
-                <User className="w-4 h-4" />
-                <span className="hidden sm:inline">Sign In</span>
+                <User className="w-5 h-5" />
+                <span className="text-xs font-medium hidden md:inline">Sign In</span>
               </Link>
             )}
           </div>
@@ -104,14 +108,15 @@ function AdminLink() {
   return (
     <Link
       href="/admin"
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+      className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
         pathname === '/admin'
-          ? 'bg-purple-500 text-white'
-          : 'text-gray-600 hover:bg-purple-50 hover:text-purple-500'
+          ? 'bg-purple-500 text-white shadow-md'
+          : 'text-gray-600 hover:bg-white/50 hover:text-purple-500'
       }`}
+      title="Admin"
     >
-      <Shield className="w-4 h-4" />
-      <span className="hidden sm:inline">Admin</span>
+      <Shield className="w-5 h-5" />
+      <span className="text-xs font-medium hidden md:inline">Admin</span>
     </Link>
   )
 }
