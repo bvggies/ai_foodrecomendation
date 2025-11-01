@@ -63,17 +63,23 @@ export async function callGemini(
   }
 
   // Convert messages to Gemini format
-  // Gemini uses different message format, need to convert
+  // For Gemini API v1, system instructions need to be included in the first user message
+  // (systemInstruction field is not supported in v1 API)
+  const systemMessage = messages.find(msg => msg.role === 'system')
+  const systemInstruction = systemMessage?.content
+
+  // Convert messages to Gemini format (filter out system message)
   const geminiMessages = messages
-    .filter(msg => msg.role !== 'system') // System messages handled differently
+    .filter(msg => msg.role !== 'system')
     .map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }],
     }))
 
-  // Add system instruction if present
-  const systemMessage = messages.find(msg => msg.role === 'system')
-  const systemInstruction = systemMessage?.content
+  // If there's a system instruction, prepend it to the first user message
+  if (systemInstruction && geminiMessages.length > 0 && geminiMessages[0].role === 'user') {
+    geminiMessages[0].parts[0].text = `${systemInstruction}\n\n${geminiMessages[0].parts[0].text}`
+  }
 
   const model = process.env.GEMINI_MODEL || 'gemini-pro'
   
@@ -91,7 +97,6 @@ export async function callGemini(
         temperature: options.temperature || 0.7,
         maxOutputTokens: options.maxTokens || 1000,
       },
-      systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined,
     }),
   })
 
