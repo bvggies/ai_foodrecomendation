@@ -1,3 +1,4 @@
+import { useSession } from 'next-auth/react'
 import { FavoriteRecipe } from './useFavorites'
 
 export interface GroceryItem {
@@ -85,9 +86,6 @@ function categorizeIngredient(ingredient: string): string {
   
   return 'Other'
 }
-
-import { useSession } from 'next-auth/react'
-import { FavoriteRecipe } from './useFavorites'
 
 export function useGroceryList() {
   const { data: session } = useSession()
