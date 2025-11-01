@@ -11,6 +11,10 @@ An AI-powered food recommendation and recipe web application built with Next.js,
 - 📅 **Meal Planner**: Plan your meals for the week with an interactive calendar. Add breakfast, lunch, dinner, and snacks
 - 🎨 **Modern UI**: Beautiful, responsive design with smooth animations
 
+## 🚀 Quick Start (Local Development)
+
+For local development without a database, the app will use localStorage. For production deployment with PostgreSQL, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
 ## 🚀 Getting Started
 
 ### Prerequisites

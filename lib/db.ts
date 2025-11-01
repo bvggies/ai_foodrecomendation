@@ -13,14 +13,19 @@ async function initDbAdapter() {
   const { Pool } = await import('pg')
   const connectionString = process.env.DATABASE_URL
 
+  // Neon and other cloud databases require SSL
+  const requiresSSL = connectionString.includes('sslmode=require') || 
+                      connectionString.includes('neon.tech') ||
+                      process.env.NODE_ENV === 'production'
+
   const pool = new Pool({
     connectionString,
-    ssl: process.env.NODE_ENV === 'production' ? {
+    ssl: requiresSSL ? {
       rejectUnauthorized: false
     } : false,
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 5000,
   })
 
   dbAdapter = {
