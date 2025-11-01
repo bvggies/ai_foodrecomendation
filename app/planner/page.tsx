@@ -27,6 +27,8 @@ export default function PlannerPage() {
       meals: [],
     }))
   )
+  // Track if we're currently loading to prevent save loop
+  const [isLoading, setIsLoading] = useState(false)
 
   // Load meals from API or localStorage
   useEffect(() => {
@@ -115,9 +117,6 @@ export default function PlannerPage() {
 
     loadMeals()
   }, [session, selectedWeek])
-
-  // Track if we're currently loading to prevent save loop
-  const [isLoading, setIsLoading] = useState(false)
 
   // Save meals to API or localStorage whenever they change
   useEffect(() => {
