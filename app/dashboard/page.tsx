@@ -149,17 +149,17 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-8 text-white mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Welcome back, {session.user?.name}!</h1>
-            <p className="text-orange-100">Manage your preferences and view your food journey</p>
+      <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-4 md:p-8 text-white mb-6 md:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex-1">
+            <h1 className="text-2xl md:text-4xl font-bold mb-2">Welcome back, {session.user?.name}!</h1>
+            <p className="text-orange-100 text-sm md:text-base">Manage your preferences and view your food journey</p>
           </div>
           <button
             onClick={() => signOut({ callbackUrl: '/' })}
-            className="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-white bg-opacity-20 active:bg-opacity-30 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors touch-manipulation min-h-[44px] w-full sm:w-auto justify-center"
           >
             <LogOut className="w-5 h-5" />
             Sign Out
@@ -168,7 +168,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
         <StatCard icon={<Heart />} label="Favorites" value={stats.favorites} />
         <StatCard icon={<Utensils />} label="Recipes" value={stats.recipes} />
         <StatCard icon={<Calendar />} label="Meals Planned" value={stats.meals} />

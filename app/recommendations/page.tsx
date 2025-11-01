@@ -89,16 +89,16 @@ export default function RecommendationsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">Personalized Recommendations</h1>
-        <p className="text-gray-600 text-lg">
+    <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4">Personalized Recommendations</h1>
+        <p className="text-gray-600 text-base md:text-lg">
           Get recipe suggestions tailored to your diet preferences and health goals
         </p>
       </div>
 
       {/* Preferences Form */}
-      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+      <div className="bg-white rounded-2xl shadow-lg p-4 md:p-8 mb-6 md:mb-8">
         <h2 className="text-2xl font-semibold mb-6">Tell us about your preferences</h2>
 
         <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -170,7 +170,7 @@ export default function RecommendationsPage() {
         <button
           onClick={getRecommendations}
           disabled={isLoading}
-          className="w-full bg-orange-500 text-white py-4 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-lg flex items-center justify-center gap-2"
+          className="w-full bg-orange-500 text-white py-4 rounded-lg active:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-base md:text-lg flex items-center justify-center gap-2 touch-manipulation min-h-[44px]"
         >
           {isLoading ? (
             <>
@@ -295,7 +295,7 @@ export default function RecommendationsPage() {
                   }
                 }}
                 disabled={generatingRecipe === `generating-${index}`}
-                className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition-colors font-semibold mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-orange-500 text-white py-3 rounded-lg active:bg-orange-600 transition-colors font-semibold mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation min-h-[44px]"
               >
                 {generatingRecipe === `generating-${index}` ? (
                   <>

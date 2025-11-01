@@ -25,7 +25,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <SessionProvider>
           <Navigation />
-          <main className="min-h-screen pb-24">
+          <main className="min-h-screen pb-20 md:pb-24 safe-area-inset-bottom">
             {children}
           </main>
         </SessionProvider>

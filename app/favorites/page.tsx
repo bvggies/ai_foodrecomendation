@@ -10,8 +10,8 @@ export default function FavoritesPage() {
 
   if (favorites.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <h1 className="text-4xl font-bold mb-8">Favorite Recipes</h1>
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
+        <h1 className="text-3xl md:text-4xl font-bold mb-6 md:mb-8">Favorite Recipes</h1>
         <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
           <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h2 className="text-2xl font-semibold text-gray-700 mb-2">No favorites yet</h2>
@@ -30,13 +30,13 @@ export default function FavoritesPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Favorite Recipes</h1>
-        <p className="text-gray-600">Your saved recipes ({favorites.length})</p>
-      </div>
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Favorite Recipes</h1>
+          <p className="text-gray-600 text-sm md:text-base">Your saved recipes ({favorites.length})</p>
+        </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {favorites.map((recipe) => (
           <div
             key={recipe.id}

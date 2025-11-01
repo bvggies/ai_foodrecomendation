@@ -117,10 +117,10 @@ export default function RecipeGeneratorPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-8">Recipe Generator</h1>
+    <div className="container mx-auto px-4 py-6 md:py-8 max-w-4xl">
+      <h1 className="text-3xl md:text-4xl font-bold mb-6 md:mb-8">Recipe Generator</h1>
 
-      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+      <div className="bg-white rounded-2xl shadow-lg p-4 md:p-8 mb-6 md:mb-8">
         <h2 className="text-2xl font-semibold mb-6">What ingredients do you have?</h2>
 
         {/* Ingredients Input */}
@@ -135,11 +135,12 @@ export default function RecipeGeneratorPage() {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="e.g., chicken, rice, tomatoes..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-base"
             />
             <button
               onClick={addIngredient}
-              className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
+              className="bg-orange-500 text-white px-4 md:px-6 py-3 rounded-lg active:bg-orange-600 transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+              title="Add ingredient"
             >
               <Plus className="w-5 h-5" />
             </button>
@@ -209,7 +210,7 @@ export default function RecipeGeneratorPage() {
         <button
           onClick={generateRecipe}
           disabled={isLoading || ingredients.length === 0}
-          className="w-full bg-orange-500 text-white py-4 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-lg flex items-center justify-center gap-2"
+          className="w-full bg-orange-500 text-white py-4 rounded-lg active:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-base md:text-lg flex items-center justify-center gap-2 touch-manipulation min-h-[44px]"
         >
           {isLoading ? (
             <>
@@ -233,7 +234,7 @@ export default function RecipeGeneratorPage() {
           <p className="text-gray-600 mb-6">{recipe.description}</p>
 
           {/* Recipe Meta */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
             <div className="flex items-center gap-2 text-gray-600">
               <Clock className="w-5 h-5 text-orange-500" />
               <div>
@@ -266,21 +267,23 @@ export default function RecipeGeneratorPage() {
 
           {/* Action Buttons */}
           {recipe.id && (
-            <div className="flex gap-4 mb-8 pb-8 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-6 md:mb-8 pb-6 md:pb-8 border-b border-gray-200">
               <button
                 onClick={() => router.push(`/recipes/${recipe.id}`)}
-                className="flex-1 bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                className="flex-1 bg-orange-500 text-white py-3 rounded-lg active:bg-orange-600 transition-colors font-semibold flex items-center justify-center gap-2 touch-manipulation min-h-[44px]"
               >
                 <BookOpen className="w-5 h-5" />
-                View Full Recipe
+                <span className="hidden sm:inline">View Full Recipe</span>
+                <span className="sm:hidden">View Recipe</span>
               </button>
               <button
                 onClick={() => recipe.id && toggleFavorite(recipe as any)}
-                className={`px-6 py-3 rounded-lg transition-colors font-semibold flex items-center gap-2 ${
+                className={`px-4 md:px-6 py-3 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 touch-manipulation min-h-[44px] min-w-[44px] ${
                   recipe.id && isFavorite(recipe.id)
-                    ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-red-500 text-white active:bg-red-600'
+                    : 'bg-gray-100 text-gray-700 active:bg-gray-200'
                 }`}
+                title={recipe.id && isFavorite(recipe.id) ? 'Remove from favorites' : 'Add to favorites'}
               >
                 <Heart className={`w-5 h-5 ${recipe.id && isFavorite(recipe.id) ? 'fill-current' : ''}`} />
               </button>
@@ -289,7 +292,8 @@ export default function RecipeGeneratorPage() {
                   addRecipeToGroceryList(recipe as any)
                   alert('Ingredients added to grocery list!')
                 }}
-                className="px-6 py-3 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors font-semibold flex items-center gap-2"
+                className="px-4 md:px-6 py-3 rounded-lg bg-blue-500 text-white active:bg-blue-600 transition-colors font-semibold flex items-center justify-center gap-2 touch-manipulation min-h-[44px] min-w-[44px]"
+                title="Add to grocery list"
               >
                 <ShoppingCart className="w-5 h-5" />
               </button>

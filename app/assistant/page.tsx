@@ -82,15 +82,15 @@ export default function AssistantPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="bg-white rounded-2xl shadow-xl h-[calc(100vh-8rem)] flex flex-col">
+    <div className="container mx-auto px-4 py-4 md:py-8 max-w-4xl">
+      <div className="bg-white rounded-2xl shadow-xl h-[calc(100vh-8rem)] md:h-[calc(100vh-8rem)] flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-t-2xl">
-          <div className="flex items-center gap-3">
-            <ChefHat className="w-8 h-8" />
-            <div>
-              <h1 className="text-2xl font-bold">SmartBite AI</h1>
-              <p className="text-orange-100 text-sm">Powered by Groq Turbo • Ultra-fast & free</p>
+        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 md:p-6 rounded-t-2xl">
+          <div className="flex items-center gap-2 md:gap-3">
+            <ChefHat className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0" />
+            <div className="min-w-0">
+              <h1 className="text-xl md:text-2xl font-bold">SmartBite AI</h1>
+              <p className="text-orange-100 text-xs md:text-sm">Powered by Groq Turbo • Ultra-fast & free</p>
             </div>
           </div>
         </div>
@@ -124,26 +124,27 @@ export default function AssistantPage() {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="p-6 border-t border-gray-200">
-          <div className="flex gap-4">
+        <form onSubmit={handleSubmit} className="p-4 md:p-6 border-t border-gray-200">
+          <div className="flex gap-2 md:gap-4">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask me about recipes, meal plans, or cooking tips..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-base"
               disabled={isLoading}
             />
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="bg-orange-500 text-white px-4 md:px-6 py-3 rounded-lg active:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 touch-manipulation min-w-[44px] min-h-[44px] justify-center"
+              title="Send message"
             >
               <Send className="w-5 h-5" />
               <span className="hidden sm:inline">Send</span>
             </button>
           </div>
-          <div className="mt-2 text-xs text-gray-500">
+          <div className="mt-2 text-xs text-gray-500 hidden sm:block">
             Try: "What can I cook with eggs, tomatoes, and onions?" or "Suggest a healthy dinner under 500 calories"
           </div>
         </form>

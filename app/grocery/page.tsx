@@ -146,13 +146,13 @@ export default function GroceryPage() {
   const totalCount = items.length
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-4xl font-bold">Grocery List</h1>
+    <div className="container mx-auto px-4 py-6 md:py-8 max-w-4xl">
+      <div className="mb-6 md:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold">Grocery List</h1>
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 font-semibold"
+            className="bg-orange-500 text-white px-4 md:px-6 py-3 rounded-lg active:bg-orange-600 transition-colors flex items-center gap-2 font-semibold touch-manipulation min-h-[44px] w-full sm:w-auto justify-center"
           >
             <Plus className="w-5 h-5" />
             Add Item
@@ -256,8 +256,8 @@ export default function GroceryPage() {
 
       {/* Add Item Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl p-4 md:p-6 max-w-md w-full my-auto">
             <h2 className="text-2xl font-bold mb-4">Add Grocery Item</h2>
 
             <div className="space-y-4">
@@ -315,16 +315,16 @@ export default function GroceryPage() {
               </div>
             </div>
 
-            <div className="flex gap-4 mt-6">
+            <div className="flex gap-3 md:gap-4 mt-6">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="flex-1 border-2 border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
+                className="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-lg active:bg-gray-50 transition-colors font-semibold touch-manipulation min-h-[44px]"
               >
                 Cancel
               </button>
               <button
                 onClick={addItem}
-                className="flex-1 bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition-colors font-semibold"
+                className="flex-1 bg-orange-500 text-white py-3 rounded-lg active:bg-orange-600 transition-colors font-semibold touch-manipulation min-h-[44px]"
               >
                 Add Item
               </button>

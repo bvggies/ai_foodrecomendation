@@ -330,30 +330,30 @@ export default function PlannerPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-4xl font-bold">Meal Planner</h1>
-          <div className="flex gap-3">
+    <div className="container mx-auto px-2 md:px-4 py-6 md:py-8">
+      <div className="mb-6 md:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold">Meal Planner</h1>
+          <div className="flex gap-2 md:gap-3 w-full sm:w-auto">
             {session?.user && (
               <button
                 onClick={() => {
                   setShowAllMeals(!showAllMeals)
                   if (!showAllMeals) loadAllMeals()
                 }}
-                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                className={`px-3 md:px-4 py-2 rounded-lg transition-colors flex items-center gap-2 touch-manipulation min-h-[44px] flex-1 sm:flex-none ${
                   showAllMeals
-                    ? 'bg-purple-500 text-white hover:bg-purple-600'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-purple-500 text-white active:bg-purple-600'
+                    : 'bg-gray-200 text-gray-700 active:bg-gray-300'
                 }`}
               >
                 <History className="w-4 h-4" />
-                {showAllMeals ? 'Hide All Meals' : 'View All Meals'}
+                <span className="text-sm md:text-base">{showAllMeals ? 'Hide All Meals' : 'View All Meals'}</span>
               </button>
             )}
             <button
               onClick={goToToday}
-              className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+              className="bg-orange-500 text-white px-3 md:px-4 py-2 rounded-lg active:bg-orange-600 transition-colors touch-manipulation min-h-[44px] flex-1 sm:flex-none"
             >
               Today
             </button>
@@ -361,21 +361,22 @@ export default function PlannerPage() {
         </div>
 
         {/* Week Navigation */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
           <button
             onClick={goToPrevWeek}
-            className="text-orange-500 hover:text-orange-600 font-semibold"
+            className="text-orange-500 active:text-orange-600 font-semibold touch-manipulation min-h-[44px] px-2 md:px-0 text-sm md:text-base"
           >
-            ← Previous Week
+            ← <span className="hidden sm:inline">Previous Week</span><span className="sm:hidden">Prev</span>
           </button>
-          <div className="text-lg font-semibold">
-            {format(selectedWeek, 'MMM d')} - {format(addDays(selectedWeek, 6), 'MMM d, yyyy')}
+          <div className="text-base md:text-lg font-semibold text-center px-2">
+            <div className="hidden sm:block">{format(selectedWeek, 'MMM d')} - {format(addDays(selectedWeek, 6), 'MMM d, yyyy')}</div>
+            <div className="sm:hidden text-xs">{format(selectedWeek, 'MMM d')} - {format(addDays(selectedWeek, 6), 'MMM d')}</div>
           </div>
           <button
             onClick={goToNextWeek}
-            className="text-orange-500 hover:text-orange-600 font-semibold"
+            className="text-orange-500 active:text-orange-600 font-semibold touch-manipulation min-h-[44px] px-2 md:px-0 text-sm md:text-base"
           >
-            Next Week →
+            <span className="hidden sm:inline">Next Week</span><span className="sm:hidden">Next</span> →
           </button>
         </div>
       </div>
@@ -440,11 +441,11 @@ export default function PlannerPage() {
       )}
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-4">
+      <div className="grid grid-cols-7 gap-2 md:gap-4 overflow-x-auto pb-2">
         {meals.map((dayMeals, dayIndex) => (
           <div
             key={dayIndex}
-            className="bg-white rounded-xl shadow-md border border-gray-100 p-4 min-h-[400px]"
+            className="bg-white rounded-xl shadow-md border border-gray-100 p-2 md:p-4 min-h-[300px] md:min-h-[400px]"
           >
             <div className="mb-4">
               <div className="text-sm text-gray-500 mb-1">
@@ -463,10 +464,11 @@ export default function PlannerPage() {
 
             <button
               onClick={() => openAddModal(dayMeals.date)}
-              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-3 text-gray-500 hover:border-orange-500 hover:text-orange-500 transition-colors mb-4 flex items-center justify-center gap-2"
+              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 text-gray-500 active:border-orange-500 active:text-orange-500 transition-colors mb-3 md:mb-4 flex items-center justify-center gap-2 touch-manipulation min-h-[44px] text-sm md:text-base"
             >
               <Plus className="w-4 h-4" />
-              Add Meal
+              <span className="hidden sm:inline">Add Meal</span>
+              <span className="sm:hidden">Add</span>
             </button>
 
             <div className="space-y-2">
@@ -550,13 +552,13 @@ export default function PlannerPage() {
         const daysWithMeals = meals.filter(day => day.meals.length > 0).length
 
         return (
-          <div className="mt-8 bg-white rounded-xl shadow-md border border-gray-200 p-6">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <Calendar className="w-6 h-6 text-orange-500" />
+          <div className="mt-6 md:mt-8 bg-white rounded-xl shadow-md border border-gray-200 p-4 md:p-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 flex items-center gap-2">
+              <Calendar className="w-5 h-5 md:w-6 md:h-6 text-orange-500" />
               Week Statistics
             </h2>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
               {/* Total Meals */}
               <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
                 <div className="text-sm text-gray-600 mb-1">Total Meals</div>
@@ -593,7 +595,7 @@ export default function PlannerPage() {
               </div>
 
               {/* Completion Progress Bar */}
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 md:col-span-2 lg:col-span-1">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-3 md:p-4 border border-gray-200 md:col-span-3 lg:col-span-1">
                 <div className="text-sm text-gray-600 mb-2">Progress</div>
                 <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
                   <div
@@ -607,9 +609,9 @@ export default function PlannerPage() {
 
             {/* Meal Type Distribution */}
             {mealTypeCounts.some(type => type.count > 0) && (
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-4">Meal Type Distribution</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="mt-4 md:mt-6">
+                <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Meal Type Distribution</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
                   {mealTypeCounts.map(type => {
                     const percentage = totalMeals > 0 ? Math.round((type.count / totalMeals) * 100) : 0
                     return (
@@ -652,8 +654,8 @@ export default function PlannerPage() {
 
       {/* Add Meal Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl p-4 md:p-6 max-w-md w-full my-auto">
             <h2 className="text-2xl font-bold mb-4">Add Meal</h2>
             {selectedDay && (
               <p className="text-gray-600 mb-4">
@@ -710,16 +712,16 @@ export default function PlannerPage() {
               </div>
             </div>
 
-            <div className="flex gap-4 mt-6">
+            <div className="flex gap-3 md:gap-4 mt-6">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="flex-1 border-2 border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
+                className="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-lg active:bg-gray-50 transition-colors font-semibold touch-manipulation min-h-[44px]"
               >
                 Cancel
               </button>
               <button
                 onClick={addMeal}
-                className="flex-1 bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition-colors font-semibold"
+                className="flex-1 bg-orange-500 text-white py-3 rounded-lg active:bg-orange-600 transition-colors font-semibold touch-manipulation min-h-[44px]"
               >
                 Add Meal
               </button>

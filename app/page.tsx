@@ -4,25 +4,25 @@ import Logo from '@/components/Logo'
 
 export default function Home() {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-8 md:py-12">
       {/* Hero Section */}
-      <div className="text-center mb-16">
-        <div className="flex justify-center mb-6">
+      <div className="text-center mb-12 md:mb-16">
+        <div className="flex justify-center mb-4 md:mb-6">
           <Logo size="lg" showText={true} />
         </div>
-        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+        <p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8 max-w-2xl mx-auto px-4">
           Discover meals, plan diets, and cook efficiently with personalized AI-powered recommendations
         </p>
-        <div className="flex gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center px-4">
           <Link
             href="/assistant"
-            className="bg-orange-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors shadow-lg"
+            className="bg-orange-500 text-white px-6 md:px-8 py-3 rounded-lg font-semibold active:bg-orange-600 transition-colors shadow-lg touch-manipulation text-center min-h-[44px] flex items-center justify-center"
           >
             Start Chatting
           </Link>
           <Link
             href="/recipes"
-            className="border-2 border-orange-500 text-orange-500 px-8 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
+            className="border-2 border-orange-500 text-orange-500 px-6 md:px-8 py-3 rounded-lg font-semibold active:bg-orange-50 transition-colors touch-manipulation text-center min-h-[44px] flex items-center justify-center"
           >
             Browse Recipes
           </Link>
@@ -64,19 +64,19 @@ export default function Home() {
       </div>
 
       {/* Quick Stats */}
-      <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-8 text-center">
-        <div className="grid md:grid-cols-3 gap-8">
+      <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 md:p-8 text-center">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
           <div>
-            <div className="text-4xl font-bold text-orange-500 mb-2">1000+</div>
-            <div className="text-gray-600">Recipes Available</div>
+            <div className="text-3xl md:text-4xl font-bold text-orange-500 mb-2">1000+</div>
+            <div className="text-sm md:text-base text-gray-600">Recipes Available</div>
           </div>
           <div>
-            <div className="text-4xl font-bold text-orange-500 mb-2">AI-Powered</div>
-            <div className="text-gray-600">Recipe Generation</div>
+            <div className="text-3xl md:text-4xl font-bold text-orange-500 mb-2">AI-Powered</div>
+            <div className="text-sm md:text-base text-gray-600">Recipe Generation</div>
           </div>
           <div>
-            <div className="text-4xl font-bold text-orange-500 mb-2">Free</div>
-            <div className="text-gray-600">To Get Started</div>
+            <div className="text-3xl md:text-4xl font-bold text-orange-500 mb-2">Free</div>
+            <div className="text-sm md:text-base text-gray-600">To Get Started</div>
           </div>
         </div>
       </div>
