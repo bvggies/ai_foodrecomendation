@@ -10,37 +10,18 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
-    const { dietType, healthGoal, cuisine, maxCalories, provider: requestedProvider } = await req.json()
+    const { dietType, healthGoal, cuisine, maxCalories } = await req.json()
 
-    // Get user's preferred AI provider (if logged in), default to Groq
-    let selectedProvider: AIProvider = 'groq'
-    try {
-      const session = await getServerSession(authOptions)
-      if (session?.user?.id) {
-        const db = await getDb()
-        const prefsResult = await db.query(
-          'SELECT ai_provider FROM user_preferences WHERE user_id = $1',
-          [session.user.id]
-        )
-        if (prefsResult.rows.length > 0 && prefsResult.rows[0].ai_provider) {
-          selectedProvider = prefsResult.rows[0].ai_provider as AIProvider
-        }
-      }
-    } catch (e) {
-      // If we can't get user preferences, use default
-    }
+    // Always use Groq
+    const provider: AIProvider = 'groq'
 
-    // Use requested provider if provided, otherwise use user preference
-    const provider: AIProvider = requestedProvider || selectedProvider
-
-    // Check available providers
+    // Check if Groq is available
     const availableProviders = getAvailableProviders()
-    if (!availableProviders.includes(provider)) {
+    if (!availableProviders.includes('groq')) {
       return NextResponse.json(
         {
-          error: `AI provider "${provider}" is not available`,
-          details: `Available providers: ${availableProviders.join(', ')}. Please configure the required API keys.`,
-          availableProviders,
+          error: 'Groq API key not configured',
+          details: 'Please set GROQ_API_KEY in your environment variables.',
         },
         { status: 400 }
       )

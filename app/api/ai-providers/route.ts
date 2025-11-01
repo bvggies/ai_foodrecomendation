@@ -2,31 +2,13 @@ import { NextResponse } from 'next/server'
 import { getAvailableProviders } from '@/lib/ai-providers'
 
 /**
- * Get available AI providers based on configured API keys
+ * Get available AI providers (Groq only)
  */
 export async function GET() {
   try {
     const providers = getAvailableProviders()
     
     const providerInfo = {
-      openai: {
-        name: 'ChatGPT',
-        available: providers.includes('openai'),
-        free: false,
-        description: 'Classic AI companion',
-      },
-      gemini: {
-        name: 'Gemini Spark',
-        available: providers.includes('gemini'),
-        free: true,
-        description: 'Lightning fast & free',
-      },
-      claude: {
-        name: 'Claude Wisdom',
-        available: providers.includes('claude'),
-        free: false,
-        description: 'Thoughtful & precise',
-      },
       groq: {
         name: 'Groq Turbo',
         available: providers.includes('groq'),
@@ -35,13 +17,10 @@ export async function GET() {
       },
     }
 
-    // Prefer Groq as default if available, otherwise use first available
-    const defaultProvider = providers.includes('groq') ? 'groq' : (providers[0] || 'openai')
-    
     return NextResponse.json({
       providers: providerInfo,
       available: providers,
-      default: defaultProvider,
+      default: 'groq',
     })
   } catch (error: any) {
     return NextResponse.json(

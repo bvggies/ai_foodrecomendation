@@ -43,37 +43,18 @@ If the user asks about specific ingredients common in Ghanaian cooking (plantain
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, history, provider: requestedProvider } = await req.json()
+    const { message, history } = await req.json()
 
-    // Get user's preferred AI provider (if logged in), default to Groq
-    let selectedProvider: AIProvider = 'groq'
-    try {
-      const session = await getServerSession(authOptions)
-      if (session?.user?.id) {
-        const db = await getDb()
-        const prefsResult = await db.query(
-          'SELECT ai_provider FROM user_preferences WHERE user_id = $1',
-          [session.user.id]
-        )
-        if (prefsResult.rows.length > 0 && prefsResult.rows[0].ai_provider) {
-          selectedProvider = prefsResult.rows[0].ai_provider as AIProvider
-        }
-      }
-    } catch (e) {
-      // If we can't get user preferences, use default
-    }
+    // Always use Groq
+    const provider: AIProvider = 'groq'
 
-    // Use requested provider if provided, otherwise use user preference
-    const provider: AIProvider = requestedProvider || selectedProvider
-
-    // Check available providers
+    // Check if Groq is available
     const availableProviders = getAvailableProviders()
-    if (!availableProviders.includes(provider)) {
+    if (!availableProviders.includes('groq')) {
       return NextResponse.json(
         {
-          error: `AI provider "${provider}" is not available`,
-          details: `Available providers: ${availableProviders.join(', ')}. Please configure the required API keys.`,
-          availableProviders,
+          error: 'Groq API key not configured',
+          details: 'Please set GROQ_API_KEY in your environment variables.',
         },
         { status: 400 }
       )
@@ -100,21 +81,21 @@ export async function POST(req: NextRequest) {
       model: aiResponse.model,
     })
   } catch (error: any) {
-    console.error('OpenAI API error:', error)
+    console.error('Groq API error:', error)
     
     // Provide more specific error messages
     let errorMessage = 'Failed to generate response'
     let errorDetails = error.message || 'Unknown error'
 
-    if (error.message?.includes('API key')) {
-      errorMessage = 'Invalid OpenAI API key'
-      errorDetails = 'Please check that your OPENAI_API_KEY is correct and starts with "sk-". Make sure to redeploy after updating it.'
+    if (error.message?.includes('API key') || error.message?.includes('not configured')) {
+      errorMessage = 'Groq API key not configured'
+      errorDetails = 'Please check that your GROQ_API_KEY is set in your environment variables. Make sure to redeploy after updating it.'
     } else if (error.message?.includes('rate limit') || error.status === 429) {
       errorMessage = 'Rate limit exceeded'
-      errorDetails = 'You have exceeded your OpenAI API rate limit. Please try again later.'
+      errorDetails = 'You have exceeded your Groq API rate limit. Please try again later.'
     } else if (error.status === 401) {
       errorMessage = 'Authentication failed'
-      errorDetails = 'Your OpenAI API key is invalid or expired. Please check your API key in the environment variables.'
+      errorDetails = 'Your Groq API key is invalid or expired. Please check your API key in the environment variables.'
     }
 
     return NextResponse.json(

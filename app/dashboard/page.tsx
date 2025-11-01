@@ -227,25 +227,6 @@ export default function DashboardPage() {
             placeholder="e.g., Ghanaian, Italian, Asian"
           />
 
-          {/* AI Provider Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Preferred AI Assistant
-            </label>
-            <select
-              value={preferences.ai_provider || 'gemini'}
-              onChange={(e) => setPreferences({ ...preferences, ai_provider: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            >
-              <option value="gemini">Gemini Spark (Free tier available)</option>
-              <option value="groq">Groq Turbo (Free tier available)</option>
-              <option value="openai">ChatGPT</option>
-              <option value="claude">Claude Wisdom</option>
-            </select>
-            <p className="text-xs text-gray-500 mt-1">
-              Choose your preferred AI for chat and recipe generation. Some providers may require API keys to be configured.
-            </p>
-          </div>
 
           {/* Notes */}
           <div>
